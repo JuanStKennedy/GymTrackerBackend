@@ -3,11 +3,11 @@ import java.sql.Date;
 
 import db.databaseConection;
 import model.cliente;
-import utils.dbLogger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class clienteDAO {
     public void agregarCliente(cliente c) {
@@ -111,6 +111,43 @@ public class clienteDAO {
         }catch(Exception e){
             System.out.println("Error: "+e.getMessage());
         }
+    }
+
+    public cliente buscarPorCi(String ci) {
+        final String sql = "SELECT ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso " +
+                "FROM cliente WHERE ci = ?";
+
+        try (Connection cn = databaseConection.getInstancia().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+
+            ps.setString(1, ci);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapCliente(rs);
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al buscar cliente por CI: " + e.getMessage());
+        }
+
+        return null; // si no se encuentra
+    }
+
+    //transformamos resulta de consulta a objeto
+    private cliente mapCliente(ResultSet rs) throws SQLException {
+        cliente c = new cliente();
+        c.setCi(rs.getString("ci"));
+        c.setEmail(rs.getString("email"));
+        c.setNombre(rs.getString("nombre"));
+        c.setApellido(rs.getString("apellido"));
+        c.setCiudad(rs.getString("ciudad"));
+        c.setDireccion(rs.getString("direccion"));
+        c.setTel(rs.getString("tel"));
+        c.setPais(rs.getString("pais"));
+        c.setFechaIngreso(rs.getDate("fecha_ingreso")); // java.sql.Date
+        return c;
     }
 
 }
