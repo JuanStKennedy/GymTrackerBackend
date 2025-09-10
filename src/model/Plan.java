@@ -1,7 +1,7 @@
 package model;
 import java.math.BigDecimal;
 
-public class plan {
+public class Plan {
     private int id;
     private String nombre;
     private BigDecimal valor;
@@ -11,10 +11,10 @@ public class plan {
     private boolean estado;
 
     // Constructor vacío
-    public plan() {}
+    public Plan() {}
 
     // Constructor completo
-    public plan(int id, String nombre, BigDecimal valor, short duracionTotal,
+    public Plan(int id, String nombre, BigDecimal valor, short duracionTotal,
                 byte duracionUnidadId, String urlImagen, boolean estado) {
         this.id = id;
         this.nombre = nombre;

@@ -2,15 +2,15 @@ package dao;
 import java.sql.Date;
 
 import db.databaseConection;
-import model.cliente;
+import model.Cliente;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class clienteDAO {
-    public void agregarCliente(cliente c) {
+public class ClienteDAO {
+    public void agregarCliente(Cliente c) {
         String sql = "INSERT INTO cliente (ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try{
@@ -47,7 +47,7 @@ public class clienteDAO {
             System.out.println("Error: "+e.getMessage());
         }
     }
-    public void modificarCliente(cliente c) {
+    public void modificarCliente(Cliente c) {
         String sql = "UPDATE cliente SET email = ?, nombre = ?, apellido = ?, " +
                 "ciudad = ?, direccion = ?, tel = ?, pais = ?, fecha_ingreso = ? " +
                 "WHERE ci = ?";
@@ -113,7 +113,7 @@ public class clienteDAO {
         }
     }
 
-    public cliente buscarPorCi(String ci) {
+    public Cliente buscarPorCi(String ci) {
         final String sql = "SELECT ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso " +
                 "FROM cliente WHERE ci = ?";
 
@@ -136,8 +136,8 @@ public class clienteDAO {
     }
 
     //transformamos resulta de consulta a objeto
-    private cliente mapCliente(ResultSet rs) throws SQLException {
-        cliente c = new cliente();
+    private Cliente mapCliente(ResultSet rs) throws SQLException {
+        Cliente c = new Cliente();
         c.setCi(rs.getString("ci"));
         c.setEmail(rs.getString("email"));
         c.setNombre(rs.getString("nombre"));

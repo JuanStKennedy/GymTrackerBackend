@@ -1,7 +1,7 @@
 package model;
 import java.sql.Date; // para manejar el tipo DATE de la BD
 
-public class cliente {
+public class Cliente {
     private String ci;
     private String email;
     private String nombre;
@@ -12,10 +12,10 @@ public class cliente {
     private String pais;
     private Date fechaIngreso;
 
-    public cliente() {}
+    public Cliente() {}
 
     // Constructor
-    public cliente(String ci, String email, String nombre, String apellido, String ciudad, String direccion, String tel, String pais, Date fechaIngreso) {
+    public Cliente(String ci, String email, String nombre, String apellido, String ciudad, String direccion, String tel, String pais, Date fechaIngreso) {
         this.ci = ci;
         this.email = email;
         this.nombre = nombre;

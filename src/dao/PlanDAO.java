@@ -1,14 +1,13 @@
 package dao;
 import java.sql.*;
-import model.plan;
+import model.Plan;
 import db.databaseConection;
 import java.util.ArrayList;
 import java.util.List;
-import java.math.BigDecimal;
 
-public class planDAO {
+public class PlanDAO {
 
-    public void agregarPlan(plan p) {
+    public void agregarPlan(Plan p) {
         final boolean conId = p.getId() > 0;
 
         final String sql = "INSERT INTO plan (nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado) " +
@@ -34,7 +33,7 @@ public class planDAO {
         }
     }
 
-    public plan buscarPorId(int id) {
+    public Plan buscarPorId(int id) {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE id = ?";
         try {
@@ -53,9 +52,9 @@ public class planDAO {
         return null;
     }
 
-    public List<plan> listarTodos() {
+    public List<Plan> listarTodos() {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado FROM plan ORDER BY id";
-        List<plan> lista = new ArrayList<>();
+        List<Plan> lista = new ArrayList<>();
         try (Connection cn = databaseConection.getInstancia().getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -69,10 +68,10 @@ public class planDAO {
         return lista;
     }
 
-    public List<plan> listarActivos() {
+    public List<Plan> listarActivos() {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE estado = 1 ORDER BY id";
-        List<plan> lista = new ArrayList<>();
+        List<Plan> lista = new ArrayList<>();
         try (Connection cn = databaseConection.getInstancia().getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -86,10 +85,10 @@ public class planDAO {
         return lista;
     }
 
-    public List<plan> listarInactivos() {
+    public List<Plan> listarInactivos() {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE estado = 0 ORDER BY id";
-        List<plan> lista = new ArrayList<>();
+        List<Plan> lista = new ArrayList<>();
         try (Connection cn = databaseConection.getInstancia().getConnection();
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -104,7 +103,7 @@ public class planDAO {
     }
 
     //updates
-    public int modificarPlan(plan p) {
+    public int modificarPlan(Plan p) {
         final String sql = "UPDATE plan SET nombre = ?, valor = ?, duracion_total = ?, duracion_unidad_id = ?, " +
                 "urlImagen = ?, estado = ? WHERE id = ?";
         try (Connection cn = databaseConection.getInstancia().getConnection();
@@ -153,7 +152,7 @@ public class planDAO {
             return false;
         }
     }
-
+    //hola
     //delete
     public boolean eliminarPlan(int id) {
         final String sql = "DELETE FROM plan WHERE id = ?";
@@ -183,8 +182,8 @@ public class planDAO {
 
 
     //transformarmos result de consulta a objeto
-    private plan mapPlan(ResultSet rs) throws SQLException {
-        plan p = new plan();
+    private Plan mapPlan(ResultSet rs) throws SQLException {
+        Plan p = new Plan();
         p.setId(rs.getInt("id"));
         p.setNombre(rs.getString("nombre"));
         p.setValor(rs.getBigDecimal("valor")); // BigDecimal
