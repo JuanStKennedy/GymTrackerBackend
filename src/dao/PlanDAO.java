@@ -8,15 +8,12 @@ import java.util.List;
 public class PlanDAO {
 
     public void agregarPlan(Plan p) {
-        final boolean conId = p.getId() > 0;
-
         final String sql = "INSERT INTO plan (nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
-            int idx = 1;
 
             sentencia.setString(1, p.getNombre());
             sentencia.setBigDecimal(2, p.getValor()); // BigDecimal para DECIMAL(10,2)

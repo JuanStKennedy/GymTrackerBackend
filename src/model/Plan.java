@@ -24,6 +24,17 @@ public class Plan {
         this.urlImagen = urlImagen;
         this.estado = estado;
     }
+    //Constructor sin id
+    public Plan( String nombre, BigDecimal valor, short duracionTotal,
+                byte duracionUnidadId, String urlImagen, boolean estado) {
+        this.id = 0;
+        this.nombre = nombre;
+        this.valor = valor;
+        this.duracionTotal = duracionTotal;
+        this.duracionUnidadId = duracionUnidadId;
+        this.urlImagen = urlImagen;
+        this.estado = estado;
+    }
 
     // Getters
     public int getId() {return id;}

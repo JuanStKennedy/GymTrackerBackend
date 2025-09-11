@@ -1,6 +1,9 @@
+import dao.PlanDAO;
 import db.databaseConection;
+import model.Plan;
 import utils.dbLogger;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -8,15 +11,26 @@ import java.sql.PreparedStatement;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        String sql = "INSERT INTO tipo_cliente (nombre) VALUE (?)";
-        try{
-            Connection conexion = databaseConection.getInstancia().getConnection();
-            PreparedStatement sentencia = conexion.prepareStatement(sql);
-            sentencia.setString(1, "miembro");
-            sentencia.execute();
-            System.out.println("Tipo agregado correctamente  .");
-        }catch(Exception e){
-            System.out.println("Error: "+e.getMessage());
-        }
+        String nombre = "Clínico";
+        BigDecimal valor= BigDecimal.valueOf(1500);
+        short duracionTotal= 5;
+        byte duracionUnidadId= 1;
+        String urlImagen= "hola.com";
+        boolean estado= true;
+        Plan p = new Plan(nombre, valor, duracionTotal, duracionUnidadId, urlImagen, estado);
+        PlanDAO plandao = new PlanDAO();
+        System.out.println("....................");
+        plandao.listarActivos();
+        System.out.println("....................");
+        plandao.listarInactivos();
+        System.out.println("....................");
+        String nombre2 = "Deportivo";
+        int id = 2;
+        Plan p2 = new Plan(id, nombre2, valor, duracionTotal, duracionUnidadId, urlImagen, estado);
+        plandao.modificarPlan(p2);
+        plandao.listarTodos();
+        plandao.eliminarPlan(2);
+        plandao.listarTodos();
+
     }
 }
