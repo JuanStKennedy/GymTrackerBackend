@@ -1,11 +1,18 @@
+
 import dao.PlanDAO;
+
+import dao.EjercicioDAO;
 import db.databaseConection;
 import model.Plan;
 import utils.dbLogger;
 
 import java.math.BigDecimal;
+
+import model.Ejercicio;
+import model.GrupoMuscular;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.List;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
