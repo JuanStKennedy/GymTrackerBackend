@@ -1,10 +1,10 @@
 package model;
 
-public class estadoMembresia {
+public class EstadoMembresia {
     private int id;
     private String nombre;
 
-    public estadoMembresia() {
+    public EstadoMembresia() {
 
     }
 

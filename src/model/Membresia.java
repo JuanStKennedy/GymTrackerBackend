@@ -2,7 +2,7 @@ package model;
 
 import java.sql.Date;
 
-public class membresia {
+public class Membresia {
     private int id;
     private int idPlan;
     private String idCliente;
@@ -10,7 +10,7 @@ public class membresia {
     private Date fechaFin;
     private int estadoId;
 
-    public membresia() {
+    public Membresia() {
 
     }
 

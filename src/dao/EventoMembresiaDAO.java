@@ -1,15 +1,15 @@
 package dao;
 
 import db.databaseConection;
-import model.eventoMembresia;
+import model.EventoMembresia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class eventoMembresiaDAO {
-    public void agregarEventoMembresia(eventoMembresia c) {
+public class EventoMembresiaDAO {
+    public void agregarEventoMembresia(EventoMembresia c) {
         String sql = "INSERT INTO evento_membresia (id_staff, id_membresia, tipo_evento_id, fecha_evento, observaciones) " +
                 "VALUES (?, ?, ?, ?, ?)";
         try{
@@ -39,7 +39,7 @@ public class eventoMembresiaDAO {
             System.out.println("Error: "+e.getMessage());
         }
     }
-    public void modificarEventoMembresia(eventoMembresia c) {
+    public void modificarEventoMembresia(EventoMembresia c) {
         String sql = "UPDATE evento_membresia SET id_staff = ?, id_membresia = ?, tipo_evento_id = ?, " +
                 "fecha_evento = ?, observaciones = ? WHERE id = ?";
         try {
@@ -97,8 +97,8 @@ public class eventoMembresiaDAO {
     }
 
 
-    private eventoMembresia mapEventoMembresia(ResultSet rs) throws SQLException {
-        eventoMembresia c = new eventoMembresia();
+    private EventoMembresia mapEventoMembresia(ResultSet rs) throws SQLException {
+        EventoMembresia c = new EventoMembresia();
         c.setId(rs.getInt("id"));
         c.setIdStaff(rs.getInt("id_staff"));
         c.setIdMembresia(rs.getInt("id_membresia"));

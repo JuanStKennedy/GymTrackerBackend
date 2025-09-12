@@ -2,7 +2,7 @@ package model;
 
 import java.sql.Timestamp;
 
-public class eventoMembresia {
+public class EventoMembresia {
     private int id;
     private int idStaff;
     private int idMembresia;
@@ -10,7 +10,7 @@ public class eventoMembresia {
     private java.sql.Timestamp fechaEvento;
     private String observaciones;
 
-    public eventoMembresia() {
+    public EventoMembresia() {
 
     }
 

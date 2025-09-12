@@ -1,15 +1,15 @@
 package dao;
 
 import db.databaseConection;
-import model.estadoMembresia;
+import model.EstadoMembresia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class estadoMembresiaDAO {
-    public void agregarEstadoMembresia(estadoMembresia c) {
+public class EstadoMembresiaDAO {
+    public void agregarEstadoMembresia(EstadoMembresia c) {
         String sql = "INSERT INTO estado_membresia (id, nombre) " +
                 "VALUES (?, ?)";
         try{
@@ -36,7 +36,7 @@ public class estadoMembresiaDAO {
             System.out.println("Error: "+e.getMessage());
         }
     }
-    public void modificarEstadoMembresia(estadoMembresia c) {
+    public void modificarEstadoMembresia(EstadoMembresia c) {
         String sql = "UPDATE estado_membresia SET nombre = ? WHERE id = ?";
         try {
             Connection conexion = databaseConection.getInstancia().getConnection();
@@ -81,8 +81,8 @@ public class estadoMembresiaDAO {
     }
 
 
-    private estadoMembresia mapestadoMembresia(ResultSet rs) throws SQLException {
-        estadoMembresia c = new estadoMembresia();
+    private EstadoMembresia mapestadoMembresia(ResultSet rs) throws SQLException {
+        EstadoMembresia c = new EstadoMembresia();
         c.setId(rs.getInt("id"));
         c.setNombre(rs.getString("nombre"));
         return c;

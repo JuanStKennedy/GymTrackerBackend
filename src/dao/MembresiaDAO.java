@@ -1,7 +1,7 @@
 package dao;
 
 import db.databaseConection;
-import model.membresia;
+import model.Membresia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,8 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 
-public class membresiaDAO {
-    public void agregarMembresia(membresia c) {
+public class MembresiaDAO {
+    public void agregarMembresia(Membresia c) {
         String sql = "INSERT INTO membresia (id_plan, id_cliente, fecha_inicio, fecha_fin, estado_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
         try{
@@ -40,7 +40,7 @@ public class membresiaDAO {
             System.out.println("Error: "+e.getMessage());
         }
     }
-    public void modificarMembresia(membresia c) {
+    public void modificarMembresia(Membresia c) {
         String sql = "UPDATE membresia SET id_plan = ?, id_cliente = ?, fecha_inicio = ?, " +
                 "fecha_fin = ?, estado_id = ? WHERE id = ?";
         try {
@@ -98,8 +98,8 @@ public class membresiaDAO {
     }
 
 
-    private membresia mapMembresia(ResultSet rs) throws SQLException {
-        membresia c = new membresia();
+    private Membresia mapMembresia(ResultSet rs) throws SQLException {
+        Membresia c = new Membresia();
         c.setId(rs.getInt("id"));
         c.setIdPlan(rs.getInt("id_plan"));
         c.setIdCliente(rs.getString("id_cliente"));
