@@ -17,10 +17,9 @@ public class StaffDAO {
 
     public void crearStaff(Staff s) {
         String sql = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
-        try (
-                Connection con = databaseConection.getInstancia().getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)) {
-
+        try {
+            Connection con = databaseConection.getInstancia().getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, s.getUsuarioLogin());
             ps.setString(2, s.getNombreCompleto());
             ps.setInt(3, s.getRol());
@@ -38,10 +37,9 @@ public class StaffDAO {
 
     public void editarStaff(Staff s) {
         String sql = "UPDATE staff SET nombre_completo = ?, rol = ?, estado = ? WHERE id = ?";
-        try (
-                Connection con = databaseConection.getInstancia().getConnection();
-                PreparedStatement ps = con.prepareStatement(sql)
-        ) {
+        try {
+            Connection con = databaseConection.getInstancia().getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, s.getNombreCompleto());
             ps.setInt(2, s.getRol());
             ps.setInt(3, s.getEstado());
@@ -88,7 +86,6 @@ public class StaffDAO {
         try {
             PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
             ps.setInt(1, id);
-
             ps.executeUpdate();
             logger.insertarLog(dbLogger.Accion.DELETE, "Staff con id = " + id + " eliminado");
             System.out.println("Staff eliminado correctamente ");
