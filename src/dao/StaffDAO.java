@@ -15,37 +15,24 @@ public class StaffDAO {
 
     private dbLogger logger = new dbLogger();
 
-    public void CrearStaff(String usuarioLogin,String nombreCompleto,int rol, int estado){
-        String consulta = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
-        try {
-            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
-            ps.setString(1, usuarioLogin);
-            ps.setString(2, nombreCompleto);
-            ps.setInt(3, rol);
-            ps.setInt(4, estado);
+    public void crearStaff(Staff s) {
+        String sql = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
+        try (
+                Connection con = databaseConection.getInstancia().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, s.getUsuarioLogin());
+            ps.setString(2, s.getNombreCompleto());
+            ps.setInt(3, s.getRol());
+            ps.setInt(4, s.getEstado());
 
             ps.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + usuarioLogin);
-            System.out.println("Staff creado correctamente ");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
 
-    public void editarStaff(int id, String nombreCompleto, int rol, int estado) {
-        String consulta = "UPDATE staff SET nombre_completo = ?, rol = ?, estado = ? WHERE id = ?";
-        try {
-            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
-            ps.setString(1, nombreCompleto);
-            ps.setInt(2, rol);
-            ps.setInt(3, estado);
-            ps.setInt(4, id);
+            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + s.getUsuarioLogin());
+            System.out.println("Staff creado correctamente.");
 
-            ps.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + id + " editado");
-            System.out.println("Staff actualizado correctamente ");
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al crear staff: " + e.getMessage());
         }
     }
 
@@ -84,6 +71,5 @@ public class StaffDAO {
             System.out.println("Error: " + e.getMessage());
         }
     }
-
 
 }
