@@ -17,18 +17,35 @@ import java.util.List;
 import model.Movimiento;
 import dao.MovimientoDAO;
 import flow.MovimientoFlujo;
+import flow.MenuFlujo;
+import java.util.*;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
 
-        MovimientoFlujo f = new MovimientoFlujo();
-        try{
-            f.listarTodoDetalle();
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+    MenuFlujo menu = new MenuFlujo();
+    int opcion;
+    Scanner sc = new Scanner(System.in);
+    //ClienteFlujo cl = new ClienteFlujo();
+
+
+    menu.menuPrincipal();
+    do{
+        opcion=sc.nextInt();
+        sc.nextLine();
+        switch(opcion){
+            case 1:
+                //cl.menuCliente();
+
+                break;
+            case 2:
+                //flujo de ;
+            break;
+            case 3:
         }
+    }while();
 
     }
 }
