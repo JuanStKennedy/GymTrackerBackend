@@ -36,6 +36,31 @@ public class StaffDAO {
         }
     }
 
+    public void editarStaff(Staff s) {
+        String sql = "UPDATE staff SET nombre_completo = ?, rol = ?, estado = ? WHERE id = ?";
+        try (
+                Connection con = databaseConection.getInstancia().getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)
+        ) {
+            ps.setString(1, s.getNombreCompleto());
+            ps.setInt(2, s.getRol());
+            ps.setInt(3, s.getEstado());
+            ps.setInt(4, s.getId());
+
+            int filas = ps.executeUpdate();
+
+            if (filas > 0) {
+                logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + s.getId() + " editado");
+                System.out.println("Staff actualizado correctamente.");
+            } else {
+                System.out.println("No se encontro al staff con id = " + s.getId());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al editar staff: " + e.getMessage());
+        }
+    }
+
     public List<Staff> listarStaff() {
         List<Staff> staffList = new ArrayList<>();
         String consulta = "SELECT * FROM staff";
