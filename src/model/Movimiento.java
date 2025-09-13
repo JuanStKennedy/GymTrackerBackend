@@ -27,6 +27,19 @@ public class Movimiento {
         this.idMembresia = idMembresia;
         this.idCliente = idCliente;
     }
+
+    public Movimiento (Integer idStaff, LocalDateTime fechaHora, BigDecimal importe,
+                       Byte medioPagoID, Byte tipoClienteID, Byte origenId, Integer idMembresia,
+                       String idCliente) {
+        this.idStaff = idStaff;
+        this.fechaHora = fechaHora;
+        this.importe = importe;
+        this.medioPagoID = medioPagoID;
+        this.tipoClienteID = tipoClienteID;
+        this.origenId = origenId;
+        this.idMembresia = idMembresia;
+        this.idCliente = idCliente;
+    }
     //Getters and setters + to string hecho con generador de IntelliJ
 
     public Long getIdMov() {
