@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Date;
-
 public class Staff {
     private int id;
     private String usuarioLogin;
@@ -9,8 +7,15 @@ public class Staff {
     private int rol;
     private int estado;
 
-    public Staff(int id, String usuarioLogin, String nombreCompleto, int rol, int estado) {
+    public Staff(int id,String usuarioLogin, String nombreCompleto, int rol, int estado) {
         this.id = id;
+        this.usuarioLogin = usuarioLogin;
+        this.nombreCompleto = nombreCompleto;
+        this.rol = rol;
+        this.estado = estado;
+    }
+
+    public Staff(String usuarioLogin, String nombreCompleto, int rol, int estado) {
         this.usuarioLogin = usuarioLogin;
         this.nombreCompleto = nombreCompleto;
         this.rol = rol;

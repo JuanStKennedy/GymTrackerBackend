@@ -15,37 +15,47 @@ public class StaffDAO {
 
     private dbLogger logger = new dbLogger();
 
-    public void CrearStaff(String usuarioLogin,String nombreCompleto,int rol, int estado){
-        String consulta = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
+    public void crearStaff(Staff s) {
+        String sql = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
         try {
-            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
-            ps.setString(1, usuarioLogin);
-            ps.setString(2, nombreCompleto);
-            ps.setInt(3, rol);
-            ps.setInt(4, estado);
+            Connection con = databaseConection.getInstancia().getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, s.getUsuarioLogin());
+            ps.setString(2, s.getNombreCompleto());
+            ps.setInt(3, s.getRol());
+            ps.setInt(4, s.getEstado());
 
             ps.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + usuarioLogin);
-            System.out.println("Staff creado correctamente ");
+
+            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + s.getUsuarioLogin());
+            System.out.println("Staff creado correctamente.");
+
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al crear staff: " + e.getMessage());
         }
     }
 
-    public void editarStaff(int id, String nombreCompleto, int rol, int estado) {
-        String consulta = "UPDATE staff SET nombre_completo = ?, rol = ?, estado = ? WHERE id = ?";
+    public void editarStaff(Staff s) {
+        String sql = "UPDATE staff SET nombre_completo = ?, rol = ?, estado = ? WHERE id = ?";
         try {
-            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
-            ps.setString(1, nombreCompleto);
-            ps.setInt(2, rol);
-            ps.setInt(3, estado);
-            ps.setInt(4, id);
+            Connection con = databaseConection.getInstancia().getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, s.getNombreCompleto());
+            ps.setInt(2, s.getRol());
+            ps.setInt(3, s.getEstado());
+            ps.setInt(4, s.getId());
 
-            ps.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + id + " editado");
-            System.out.println("Staff actualizado correctamente ");
+            int filas = ps.executeUpdate();
+
+            if (filas > 0) {
+                logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + s.getId() + " editado");
+                System.out.println("Staff actualizado correctamente.");
+            } else {
+                System.out.println("No se encontro al staff con id = " + s.getId());
+            }
+
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error al editar staff: " + e.getMessage());
         }
     }
 
@@ -76,7 +86,6 @@ public class StaffDAO {
         try {
             PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
             ps.setInt(1, id);
-
             ps.executeUpdate();
             logger.insertarLog(dbLogger.Accion.DELETE, "Staff con id = " + id + " eliminado");
             System.out.println("Staff eliminado correctamente ");
@@ -84,6 +93,5 @@ public class StaffDAO {
             System.out.println("Error: " + e.getMessage());
         }
     }
-
 
 }
