@@ -67,14 +67,15 @@ public class Plan {
     public void setEstado(boolean estado) {this.estado = estado;}
 
     public String toString() {
-        return "Plan" +
-                "id: " + id +
-                ", nombre: " + nombre + '\'' +
-                ", valor: " + valor +
-                ", duracionTotal: " + duracionTotal +
-                ", duracionUnidadId: " + duracionUnidadId +
-                ", urlImagen: " + urlImagen + '\'' +
-                ", estado: " + estado;
+        return "Plan {" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", valor=" + valor +
+                ", duracionTotal=" + duracionTotal +
+                ", duracionUnidadId=" + duracionUnidadId +
+                ", urlImagen='" + urlImagen + '\'' +
+                ", estado=" + (estado ? "Activo" : "Inactivo") +
+                '}';
     }
 }
 
