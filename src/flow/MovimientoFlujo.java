@@ -16,12 +16,12 @@ public class MovimientoFlujo  {
     public void mostrarMenu() {
         boolean seguir = true;
         while (seguir) {
-            System.out.println("--- Nombre ---");
+            System.out.println("--- Movimiento Flujo ---");
             System.out.println("1. ");
             System.out.println("2. ");
             System.out.println("3. ");
             System.out.println("4. Volver");
-            System.out.print("Opción: ");
+            System.out.print("Opcion: ");
             int op = scanner.nextInt();
             scanner.nextLine();
 
