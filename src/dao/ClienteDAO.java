@@ -36,7 +36,7 @@ public class ClienteDAO {
     }
 
     public void eliminarCliente(String ci) {
-        String sql = "DELETE FROM usuarios WHERE ci = ?";
+        String sql = "DELETE FROM cliente WHERE ci = ?";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
