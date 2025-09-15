@@ -65,17 +65,20 @@ public class Cliente {
 
     public void setFechaIngreso(Date fechaIngreso) {this.fechaIngreso = fechaIngreso;}
 
+    @Override
     public String toString() {
-        return "Cliente:" +
-                "ci: '" + ci + '\'' +
-                ", email: " + email + '\'' +
-                ", nombre: " + nombre + '\'' +
-                ", apellido: " + apellido + '\'' +
-                ", ciudad= " + ciudad + '\'' +
-                ", direccion= " + direccion + '\'' +
-                ", tel= " + tel + '\'' +
-                ", pais= " + pais + '\'' +
-                ", fechaIngreso= " + fechaIngreso;
+        return "Cliente {" +
+                "ci='" + ci + '\'' +
+                ", email='" + email + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", ciudad='" + ciudad + '\'' +
+                ", direccion='" + direccion + '\'' +
+                ", tel='" + tel + '\'' +
+                ", pais='" + pais + '\'' +
+                ", fechaIngreso=" + fechaIngreso +
+                '}';
     }
+
 }
 

@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClienteDAO {
     public void agregarCliente(Cliente c) {
@@ -133,6 +135,22 @@ public class ClienteDAO {
         }
 
         return null; // si no se encuentra
+    }
+    public List<Cliente> listarTodos() {
+        final String sql = "SELECT ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso " +
+                "FROM cliente ORDER BY ci";
+        List<Cliente> lista = new ArrayList<>();
+        try (Connection cn = databaseConection.getInstancia().getConnection();
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(mapCliente(rs));
+            }
+        } catch (Exception e) {
+            System.out.println("Error al listar clientes: " + e.getMessage());
+        }
+        return lista;
     }
 
     //transformamos resulta de consulta a objeto
