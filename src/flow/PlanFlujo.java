@@ -2,6 +2,7 @@ package flow;
 import dao.PlanDAO;
 import model.Plan;
 
+import flow.UtilidadesFlujo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -58,12 +59,12 @@ public class PlanFlujo {
         //como se repite mucho mucho lo de leer texto/dato teniendo que imprimir y escanear
         //busqué como ahorrar líneas a partir de funciones que de paso verifiquen que sean
         //datos válidos, esto podría ser transversal a tod0 el proyecto...
-        String nombre = leerNoVacio("Nombre: ");
-        BigDecimal valor = leerBigDecimal("Valor (Ej: 1459.99");
-        short duracionTotal = (short)leerEntero("Duracion total (numero): ");
-        byte duracionUnidad = (byte)leerEntero("Duracion unidad: ");
-        String urlImagen = leerOpcional("URL Imagen (Opcional, enter para omitir)");
-        boolean estado = leerBooleanSiNo("¿Activo? (s/n): ");
+        String nombre = UtilidadesFlujo.leerNoVacio("Nombre: ");
+        BigDecimal valor = UtilidadesFlujo.leerBigDecimal("Valor (Ej: 1459.99");
+        short duracionTotal = (short)UtilidadesFlujo.leerEntero("Duracion total (numero): ");
+        byte duracionUnidad = (byte)UtilidadesFlujo.leerEntero("Duracion unidad: ");
+        String urlImagen = UtilidadesFlujo.leerOpcional("URL Imagen (Opcional, enter para omitir)");
+        boolean estado = UtilidadesFlujo.leerBooleanSiNo("¿Activo? (s/n): ");
 
         Plan p = new Plan(nombre, valor, duracionTotal, duracionUnidad,
                 (urlImagen.isBlank() ? null : urlImagen), estado); //breve chequeo para url.
@@ -72,8 +73,8 @@ public class PlanFlujo {
 
     private void bajaPlan(){
         System.out.println("       Baja de plan");
-        int id = leerEntero("ID del plan a eliiminar: ");
-        if (leerBooleanSiNo("¿Confirmar eliminacion? (s/n)")){
+        int id = UtilidadesFlujo.leerEntero("ID del plan a eliiminar: ");
+        if (UtilidadesFlujo.leerBooleanSiNo("¿Confirmar eliminacion? (s/n)")){
             boolean ok = planDAO.eliminarPlan(id);
             if (ok)System.out.println("Plan eliminado");
         }
@@ -81,7 +82,7 @@ public class PlanFlujo {
 
     private void modificarPlan(){
         System.out.println("       Modificar plan");
-        int id = leerEntero("ID del plan a modificar: ");
+        int id = UtilidadesFlujo.leerEntero("ID del plan a modificar: ");
         Plan actual = planDAO.buscarPorId(id);
         if (actual==null){
             System.out.println("No existe un plan con ese ID");
@@ -92,12 +93,12 @@ public class PlanFlujo {
         System.out.println(detallePlanLinea(actual)); //formateamos en texto de 1 linea
 
         //Aqui logramos que se imprima la linea sin saltear para que si el usr quiere modificar, deba alterar la linea y dar enter
-        String nombre = leerOpcional("Nombre [" + actual.getNombre() + "]: ");
-        String valorStr = leerOpcional("Valor [" + actual.getValor() + "]: ");
-        String durTotStr = leerOpcional("Duración total [" + actual.getDuracionTotal() + "]: ");
-        String durUniStr = leerOpcional("Unidad duración ID [" + actual.getDuracionUnidadId() + "]: ");
-        String urlImg = leerOpcional("URL Imagen [" + actual.getUrlImagen() + "]: ");
-        String estadoStr = leerOpcional("¿Activo? (s/n) [" + (actual.isEstado() ? "s" : "n") + "]: ");
+        String nombre = UtilidadesFlujo.leerOpcional("Nombre [" + actual.getNombre() + "]: ");
+        String valorStr = UtilidadesFlujo.leerOpcional("Valor [" + actual.getValor() + "]: ");
+        String durTotStr = UtilidadesFlujo.leerOpcional("Duración total [" + actual.getDuracionTotal() + "]: ");
+        String durUniStr = UtilidadesFlujo.leerOpcional("Unidad duración ID [" + actual.getDuracionUnidadId() + "]: ");
+        String urlImg = UtilidadesFlujo.leerOpcional("URL Imagen [" + actual.getUrlImagen() + "]: ");
+        String estadoStr = UtilidadesFlujo.leerOpcional("¿Activo? (s/n) [" + (actual.isEstado() ? "s" : "n") + "]: ");
 
         //Chequeamos valores y actualizamos en actual
         if (!nombre.isBlank()) actual.setNombre(nombre);
@@ -119,12 +120,12 @@ public class PlanFlujo {
             System.out.println("2) Listar activos");
             System.out.println("3) Listar inactivos");
             System.out.println("0) Volver");
-            op = leerEntero("Opción: ");
+            op = UtilidadesFlujo.leerEntero("Opción: ");
             switch (op) {
                 case 1 -> listarOrdenado(planDAO.listarTodos());
                 case 2 -> listarOrdenado(planDAO.listarActivos());
                 case 3 -> listarOrdenado(planDAO.listarInactivos());
-                case 0 -> { /* volver */ }
+                case 0 -> { /* volver :p */ }
                 default -> System.out.println("Opción inválida.");
             }
         } while (op != 0);
@@ -143,7 +144,7 @@ public class PlanFlujo {
 
     private void buscarPorId() {
         System.out.println("\n--- Buscar por ID ---");
-        int id = leerEntero("ID: ");
+        int id = UtilidadesFlujo.leerEntero("ID: ");
         Plan p = planDAO.buscarPorId(id);
         if (p == null) {
             System.out.println("No encontrado.");
@@ -154,52 +155,7 @@ public class PlanFlujo {
 
 
     //Utilidades: Lecturas
-    private String leerNoVacio(String prompt) {
-        String dato;
-        do {
-            System.out.print(prompt);
-            dato = in.nextLine().trim(); //quitamos espacios
-            if (dato.isBlank()) System.out.println("El valor no puede ser vacío.");
-        } while (dato.isBlank());
-        return dato;
-    }
-
-    private BigDecimal leerBigDecimal(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String dato = in.nextLine().trim();
-            try{
-                return new BigDecimal(dato);
-            }catch(Exception ignored){
-                System.out.println("Ingrese un valor decimal válido Ej:1459.99");
-            }
-        }
-    }
-
-    private int leerEntero(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String dato = in.nextLine().trim();
-            try{
-                return Integer.parseInt(dato);
-            }catch(Exception ignored){
-                System.out.println("Ingrese un número entero");
-            }
-        }
-    }
-    private String leerOpcional(String prompt) {
-        System.out.print(prompt);
-        return in.nextLine().trim();
-    }
-    private boolean leerBooleanSiNo(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String dato = in.nextLine().trim().toLowerCase(Locale.ROOT); //Lo de locale es para que sea independiente al idioma
-            if (dato.equals("n")) return false;
-            if (dato.equals("s")) return true;
-            System.out.println("Responda 's' o 'n'.");
-        }
-    }
+    //Utilidades movidas a UtilidadesFlujo
 
     //Utilidades: mostrar
     private String detallePlanLinea(Plan p) {
