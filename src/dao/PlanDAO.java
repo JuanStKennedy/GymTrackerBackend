@@ -10,9 +10,8 @@ public class PlanDAO {
     public void agregarPlan(Plan p) {
         final String sql = "INSERT INTO plan (nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
-
+        Connection conexion = databaseConection.getInstancia().getConnection();
         try {
-            Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
 
             sentencia.setString(1, p.getNombre());
@@ -33,8 +32,8 @@ public class PlanDAO {
     public Plan buscarPorId(int id) {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE id = ?";
-        try {
             Connection cn = databaseConection.getInstancia().getConnection();
+        try {
             PreparedStatement sentencia = cn.prepareStatement(sql);
             sentencia.setInt(1, id);
 
@@ -52,7 +51,8 @@ public class PlanDAO {
     public List<Plan> listarTodos() {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado FROM plan ORDER BY id";
         List<Plan> lista = new ArrayList<>();
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -69,7 +69,8 @@ public class PlanDAO {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE estado = 1 ORDER BY id";
         List<Plan> lista = new ArrayList<>();
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -86,7 +87,8 @@ public class PlanDAO {
         final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
                 "FROM plan WHERE estado = 0 ORDER BY id";
         List<Plan> lista = new ArrayList<>();
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -103,7 +105,8 @@ public class PlanDAO {
     public int modificarPlan(Plan p) {
         final String sql = "UPDATE plan SET nombre = ?, valor = ?, duracion_total = ?, duracion_unidad_id = ?, " +
                 "urlImagen = ?, estado = ? WHERE id = ?";
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setString(1, p.getNombre());
@@ -131,7 +134,8 @@ public class PlanDAO {
     //Por si lo llegamos a usar
     public boolean actualizarEstado(int id, boolean estado) {
         final String sql = "UPDATE plan SET estado = ? WHERE id = ?";
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setBoolean(1, estado);
@@ -153,7 +157,8 @@ public class PlanDAO {
     //delete
     public boolean eliminarPlan(int id) {
         final String sql = "DELETE FROM plan WHERE id = ?";
-        try (Connection cn = databaseConection.getInstancia().getConnection();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setInt(1, id);

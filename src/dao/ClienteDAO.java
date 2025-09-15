@@ -81,8 +81,8 @@ public class ClienteDAO {
     }
     public void listarClientes(){
         String sql = "SELECT * FROM cliente";
+        Connection conexion = databaseConection.getInstancia().getConnection();
         try{
-            Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
 
             ResultSet resultado = sentencia.executeQuery();
@@ -118,9 +118,8 @@ public class ClienteDAO {
     public Cliente buscarPorCi(String ci) {
         final String sql = "SELECT ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso " +
                 "FROM cliente WHERE ci = ?";
-
-        try (Connection cn = databaseConection.getInstancia().getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql)) {
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (PreparedStatement ps = cn.prepareStatement(sql)) {
 
             ps.setString(1, ci);
 
@@ -140,8 +139,8 @@ public class ClienteDAO {
         final String sql = "SELECT ci, email, nombre, apellido, ciudad, direccion, tel, pais, fecha_ingreso " +
                 "FROM cliente ORDER BY ci";
         List<Cliente> lista = new ArrayList<>();
-        try (Connection cn = databaseConection.getInstancia().getConnection();
-             PreparedStatement ps = cn.prepareStatement(sql);
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (PreparedStatement ps = cn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
