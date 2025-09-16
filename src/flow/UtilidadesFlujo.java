@@ -2,8 +2,10 @@ package flow;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Scanner;
+import java.time.format.DateTimeFormatter;
 
 public final class UtilidadesFlujo {
 
@@ -11,7 +13,7 @@ public final class UtilidadesFlujo {
 
     private UtilidadesFlujo() {} // no instanciable
 
-    // ===== Entrada básica =====
+    // basicos de entrada, usaremos todos? idk
 
     public static String leerNoVacio(String prompt) {
         String s;
@@ -68,7 +70,6 @@ public final class UtilidadesFlujo {
             String s = IN.nextLine().trim();
             s = s.replace(',', '.'); // admite coma o punto
             try {
-                // Evitamos cambiar el Locale global
                 return new BigDecimal(s);
             } catch (Exception ignored) {
                 System.out.println("Ingrese un decimal válido. Ej: 1499.99");
@@ -103,7 +104,7 @@ public final class UtilidadesFlujo {
         return leerBooleanSiNo(prompt);
     }
 
-    // ===== Parsers "con defecto" para pantallas de modificar =====
+    // Parsers que ni se si voy a terminar usando
 
     public static BigDecimal parseBigDecimalOr(String raw, BigDecimal def) {
         if (raw == null || raw.isBlank()) return def;
@@ -159,5 +160,46 @@ public final class UtilidadesFlujo {
 
     public static String repeat(char c, int n) {
         return String.valueOf(c).repeat(Math.max(0, n));
+    }
+
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    public static LocalDateTime leerFechaHora(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            try {
+                return LocalDateTime.parse(s, FMT);
+            } catch (Exception ignored) {
+                System.out.println("Formato inválido. Use: YYYY-MM-DD HH:MM (ej: 2025-09-15 19:30)");
+            }
+        }
+    }
+
+    public static LocalDateTime parseFechaHoraOr(String raw, LocalDateTime def) {
+        if (raw == null || raw.isBlank()) return def;
+        try { return LocalDateTime.parse(raw.trim(), FMT); } catch (Exception ignored) { return def; }
+    }
+
+    public static long leerLongPositivo(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            try {
+                long v = Long.parseLong(s);
+                if (v > 0) return v;
+            } catch (Exception ignored) {}
+            System.out.println("Ingrese un número entero > 0.");
+        }
+    }
+
+    //esta me la goglee profe, no doy mas jajas
+    public static Integer parseIntegerOr(String raw, Integer def) {
+        if (raw == null || raw.isBlank()) return def;
+        try {
+            return Integer.valueOf(raw.trim());
+        } catch (Exception ignored) {
+            return def;
+        }
     }
 }
