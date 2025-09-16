@@ -1,28 +1,26 @@
 package dao;
 
 import db.databaseConection;
-import utils.dbLogger;
+import model.enums.Objetivo;
 import model.Rutina;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RutinaDAO {
-    private dbLogger logger = new dbLogger();
     public void agregarRutina(Rutina r) {
         String sql = "INSERT INTO rutina (nombre, objetivo, duracion_semanas) VALUES (?, ?, ?)";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
             sentencia.setString(1, r.getNombre());
-            sentencia.setString(2, r.getObjetivo());
+            sentencia.setString(2, r.getObjetivo().name());
             sentencia.setInt(3, r.getDuracionSemanas());
 
             sentencia.execute();
-            System.out.println("Nueva rutina creado.");
-            logger.insertarLog(dbLogger.Accion.INSERT, "Nueva rutina creada con éxito");
         }catch(Exception err){
             System.out.println("Error: "+err.getMessage());
         }
@@ -35,8 +33,6 @@ public class RutinaDAO {
             PreparedStatement sentencia = conexion.prepareStatement(sql);
             sentencia.setInt(1, r.getId());
             sentencia.execute();
-            logger.insertarLog(dbLogger.Accion.DELETE, "Rutina eliminada correctamente");
-            System.out.println("Rutina eliminada correctamente.");
         }catch(Exception err){
             System.out.println("Error: "+err.getMessage());
         }
@@ -48,13 +44,11 @@ public class RutinaDAO {
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
             sentencia.setString(1, r.getNombre());
-            sentencia.setString(2, r.getObjetivo());
+            sentencia.setString(2, r.getObjetivo().name());
             sentencia.setInt(3, r.getDuracionSemanas());
             sentencia.setInt(4, r.getId());
 
             sentencia.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.UPDATE, "Rutina modificada exitosamente");
-            System.out.println("Rutina modificada correctamente.");
         }catch(Exception err){
             System.out.println("Error: "+err.getMessage());
         }
@@ -62,8 +56,9 @@ public class RutinaDAO {
 
     public List<Rutina> listarRutinas() {
         List<Rutina> lista = new ArrayList<>();
-        String sql = "SELECT * FROM rutina";  // tabla correcta
-        try (Connection conexion = databaseConection.getInstancia().getConnection();
+        String sql = "SELECT * FROM rutina";
+        Connection conexion = databaseConection.getInstancia().getConnection();
+        try (
              PreparedStatement sentencia = conexion.prepareStatement(sql);
              ResultSet resultado = sentencia.executeQuery()) {
 
@@ -71,13 +66,38 @@ public class RutinaDAO {
                 Rutina r = new Rutina();
                 r.setId(resultado.getInt("id"));
                 r.setNombre(resultado.getString("nombre"));
-                r.setObjetivo(resultado.getString("objetivo"));
+                String obj = resultado.getString("objetivo");
+                r.setObjetivo(Objetivo.valueOf(obj.toUpperCase()));
                 r.setDuracionSemanas(resultado.getInt("duracion_semanas"));
                 lista.add(r);
             }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
         return lista;
+    }
+
+    public List<Rutina> listarRutinasPorObjetivo(Objetivo objetivo) {
+        List<Rutina> listaRutinas = new ArrayList<>();
+        String sql = "SELECT * FROM rutina WHERE objetivo = ?";
+        Connection conexion = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement sentencia = conexion.prepareStatement(sql)){
+             sentencia.setString(1, String.valueOf(objetivo));
+             ResultSet resultado = sentencia.executeQuery();
+            while (resultado.next()) {
+                Rutina r = new Rutina();
+                r.setId(resultado.getInt("id"));
+                r.setNombre(resultado.getString("nombre"));
+                String obj = resultado.getString("objetivo");
+                r.setObjetivo(Objetivo.valueOf(obj.toUpperCase()));
+                r.setDuracionSemanas(resultado.getInt("duracion_semanas"));
+                listaRutinas.add(r);
+            }
+        }catch (Exception err){
+            System.out.println("Error: "+err.getMessage());
+        }
+        return listaRutinas;
     }
 }
