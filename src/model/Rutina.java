@@ -1,8 +1,10 @@
 package model;
 
+import model.enums.Objetivo;
+
 public class Rutina {
     private int id;
-    private String objetivo;
+    private Objetivo objetivo;
     private String nombre;
     private int duracionSemanas;
 
@@ -10,8 +12,18 @@ public class Rutina {
 
     }
 
-    public Rutina(int id, String objetivo, String nombre, int duracionSemanas) {
+    public Rutina(int id) {
         this.id = id;
+    }
+
+    public Rutina(int id, String nombre, Objetivo objetivo, int duracionSemanas) {
+        this.id = id;
+        this.objetivo = objetivo;
+        this.nombre = nombre;
+        this.duracionSemanas = duracionSemanas;
+    }
+
+    public Rutina(String nombre, Objetivo objetivo, int duracionSemanas) {
         this.objetivo = objetivo;
         this.nombre = nombre;
         this.duracionSemanas = duracionSemanas;
@@ -33,11 +45,11 @@ public class Rutina {
         this.id = id;
     }
 
-    public String getObjetivo() {
+    public Objetivo getObjetivo() {
         return objetivo;
     }
 
-    public void setObjetivo(String objetivo) {
+    public void setObjetivo(Objetivo objetivo) {
         this.objetivo = objetivo;
     }
 
@@ -47,5 +59,12 @@ public class Rutina {
 
     public void setDuracionSemanas(int duracionSemanas) {
         this.duracionSemanas = duracionSemanas;
+    }
+
+    public String toString() {
+        return "Rutina: " + nombre + " | Objetivo " + objetivo + " | DuracionSemanas " + duracionSemanas;
+    }
+    public String toStringID() {
+        return "ID " + id + " | Rutina " + nombre + " | Objetivo " + objetivo + " | DuracionSemanas " + duracionSemanas;
     }
 }

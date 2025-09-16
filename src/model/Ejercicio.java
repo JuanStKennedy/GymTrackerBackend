@@ -1,5 +1,7 @@
 package model;
 
+import model.enums.Dificultad;
+
 public class Ejercicio {
     private int id;
     private String nombre;
@@ -9,10 +11,19 @@ public class Ejercicio {
     public Ejercicio() {
     }
 
-    // Constructor con todos los atributos
-    public Ejercicio(int id, String nombre, int grupoMuscular) {
+    public Ejercicio(int id){
+        this.id = id;
+    }
+
+    public Ejercicio(String nombre, int grupoMuscular, Dificultad dificultad) {
+        this.nombre = nombre;
+        this.dificultad = dificultad;
+        this.grupoMuscular = grupoMuscular;
+    }
+    public Ejercicio(int id, String nombre, int grupoMuscular, Dificultad dificultad) {
         this.id = id;
         this.nombre = nombre;
+        this.dificultad = dificultad;
         this.grupoMuscular = grupoMuscular;
     }
 
@@ -46,6 +57,10 @@ public class Ejercicio {
 
     public void setDificultad(Dificultad dificultad) {
         this.dificultad = dificultad;
+    }
+
+    public String toString() {
+        return "ID: " + id + " | Ejercicio: " + nombre + " | Grupo Muscular ID: " + grupoMuscular + " | Dificultad: " + dificultad;
     }
 }
 
