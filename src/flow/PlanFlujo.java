@@ -60,10 +60,10 @@ public class PlanFlujo {
         //busqué como ahorrar líneas a partir de funciones que de paso verifiquen que sean
         //datos válidos, esto podría ser transversal a tod0 el proyecto...
         String nombre = UtilidadesFlujo.leerNoVacio("Nombre: ");
-        BigDecimal valor = UtilidadesFlujo.leerBigDecimal("Valor (Ej: 1459.99");
+        BigDecimal valor = UtilidadesFlujo.leerBigDecimal("Valor (Ej: 1459.99): ");
         short duracionTotal = (short)UtilidadesFlujo.leerEntero("Duracion total (numero): ");
         byte duracionUnidad = (byte)UtilidadesFlujo.leerEntero("Duracion unidad: ");
-        String urlImagen = UtilidadesFlujo.leerOpcional("URL Imagen (Opcional, enter para omitir)");
+        String urlImagen = UtilidadesFlujo.leerOpcional("URL Imagen (Opcional, enter para omitir): ");
         boolean estado = UtilidadesFlujo.leerBooleanSiNo("¿Activo? (s/n): ");
 
         Plan p = new Plan(nombre, valor, duracionTotal, duracionUnidad,

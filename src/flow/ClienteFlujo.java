@@ -131,8 +131,8 @@ public class ClienteFlujo {
     //Formateamos tabla
     private void imprimirTabla(List<Cliente> lista) {
         String[] headers = {"CI", "Email", "Nombre", "Apellido", "Ciudad", "Dirección", "Tel", "País", "FechaIngreso"};
-        int[]    widths  = {12,   24,      14,        14,         12,       24,           12,   12,     12};
-        printHeader(headers, widths);
+        int[] anchos  = {12, 24, 14, 14, 12, 24, 12, 12, 12};
+        printHeader(headers, anchos);
 
         for (Cliente c : lista) {
             System.out.println(formatRow(new Object[]{
@@ -145,7 +145,7 @@ public class ClienteFlujo {
                     nvl(c.getTel()),
                     nvl(c.getPais()),
                     nvl(c.getFechaIngreso())
-            }, widths));
+            }, anchos));
         }
     }
     //formateamos texto
