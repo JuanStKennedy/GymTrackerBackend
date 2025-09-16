@@ -2,12 +2,18 @@ package dao;
 
 import db.databaseConection;
 import model.Membresia;
+import model.Movimiento;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
+
+import static flow.UtilidadesFlujo.*;
+import static flow.UtilidadesFlujo.nvl;
 
 public class MembresiaDAO {
     public void agregarMembresia(Membresia c) {
@@ -66,7 +72,36 @@ public class MembresiaDAO {
             System.out.println("Error al modificar membresía: " + e.getMessage());
         }
     }
+
     public void listarMembresia(){
+        String sql = "SELECT * FROM membresia";
+        try{
+            Connection conexion = databaseConection.getInstancia().getConnection();
+            PreparedStatement sentencia = conexion.prepareStatement(sql);
+            List<Membresia> listaMembresia = new ArrayList<>();
+            ResultSet resultado = sentencia.executeQuery();
+            while (resultado.next()) {
+                listaMembresia.add(mapMembresia(resultado));
+            }
+            String[] headers = {"Cédula", "Nº Plan", "Fecha Inicio", "Fecha Fin", "Estado"};
+            int[] anchos = {9, 9, 13, 11, 10};
+            printHeader(headers, anchos);
+            for (Membresia m : listaMembresia) {
+                System.out.println(formatRow(new Object[]{
+                        nvl(m.getIdCliente()),
+                        nvl(m.getIdPlan()),
+                        nvl(m.getFechaInicio()),
+                        nvl(m.getFechaFin()),
+                        nvl((m.getEstadoId() == 1 ? "Activa" : "Inactiva"))
+                }, anchos));
+            }
+        }catch(Exception e){
+            System.out.println("Error: "+e.getMessage());
+        }
+    }
+
+    public List<Membresia> obtenerMembresias(){
+        List<Membresia> lista = new ArrayList<>();
         String sql = "SELECT * FROM membresia";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
@@ -74,29 +109,29 @@ public class MembresiaDAO {
 
             ResultSet resultado = sentencia.executeQuery();
             while (resultado.next()) {
-                int id = resultado.getInt("id");
-                int id_plan = resultado.getInt("id_plan");
-                String id_cliente = resultado.getString("id_cliente");
-                Date fecha_inicio = resultado.getDate("fecha_inicio");
-                Date fecha_fin = resultado.getDate("fecha_fin");
-                int estado_id = resultado.getInt("estado_id");
-
-                System.out.println("ID: " + id);
-                System.out.println("ID Plan: " + id_plan);
-                System.out.println("ID Cliente: " + id_cliente);
-                System.out.println("Fecha Inicio: " + fecha_inicio);
-                System.out.println("Fecha Fin: " + fecha_fin);
-                System.out.println("ID Estado: " + estado_id);
-                System.out.println("-------------------------------");
+                lista.add(mapMembresia(resultado));
             }
-
-            resultado.close();
-            sentencia.close();
         }catch(Exception e){
             System.out.println("Error: "+e.getMessage());
         }
+        return lista;
     }
 
+    public Membresia obtenerMembresiaPorCedula(String cedula){
+        String sql = "SELECT * FROM membresia WHERE id_cliente = ?";
+        try{
+            Connection conexion = databaseConection.getInstancia().getConnection();
+            PreparedStatement sentencia = conexion.prepareStatement(sql);
+            sentencia.setString(1, cedula);
+            ResultSet resultado = sentencia.executeQuery();
+            if (resultado.next()) {
+                return mapMembresia(resultado);
+            }
+        }catch(Exception e){
+            System.out.println("Error: "+e.getMessage());
+        }
+        return null;
+    }
 
     private Membresia mapMembresia(ResultSet rs) throws SQLException {
         Membresia c = new Membresia();

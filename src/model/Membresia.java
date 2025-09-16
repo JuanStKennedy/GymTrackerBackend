@@ -14,6 +14,15 @@ public class Membresia {
 
     }
 
+    public Membresia(int id, int idPlan, String idCliente, Date fechaInicio, Date fechaFin, int estadoId) {
+        this.id = id;
+        this.idPlan = idPlan;
+        this.idCliente = idCliente;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.estadoId = estadoId;
+    }
+
     public int getId() {
         return id;
     }
