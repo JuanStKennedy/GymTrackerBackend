@@ -8,6 +8,11 @@ public class EstadoMembresia {
 
     }
 
+    public EstadoMembresia(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
     public int getId() {
         return id;
     }

@@ -7,11 +7,20 @@ public class EventoMembresia {
     private int idStaff;
     private int idMembresia;
     private int tipoEventoId;
-    private java.sql.Timestamp fechaEvento;
+    private Timestamp fechaEvento;
     private String observaciones;
 
     public EventoMembresia() {
 
+    }
+
+    public EventoMembresia(int id, int idStaff, int idMembresia, int tipoEventoId, Timestamp fechaEvento, String observaciones) {
+        this.id = id;
+        this.idStaff = idStaff;
+        this.idMembresia = idMembresia;
+        this.tipoEventoId = tipoEventoId;
+        this.fechaEvento = fechaEvento;
+        this.observaciones = observaciones;
     }
 
     public int getId() {

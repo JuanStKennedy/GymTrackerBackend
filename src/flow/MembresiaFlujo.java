@@ -1,13 +1,17 @@
 package flow;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Scanner;
 import java.sql.Date;
 
 import dao.ClienteDAO;
+import dao.EventoMembresiaDAO;
 import dao.MembresiaDAO;
 import dao.PlanDAO;
 import model.Cliente;
+import model.EventoMembresia;
 import model.Plan;
 import model.Membresia;
 
@@ -68,10 +72,17 @@ public class MembresiaFlujo {
         Date fechaDeInicio = Date.valueOf(LocalDate.now());
         Date fechaDeFin = Date.valueOf(LocalDate.now().plusDays(dias));
         try {
-            membresiaDAO.agregarMembresia(new Membresia(-1, Integer.parseInt(idplan), idcliente, fechaDeInicio, fechaDeFin, 1));
-            System.out.println("Membresia registrada exitosamente. Fecha Inicio: " + fechaDeInicio + ", Fecha Fin: " + fechaDeFin);
+            int idNuevaMembresia = membresiaDAO.agregarMembresia(new Membresia(-1, Integer.parseInt(idplan), idcliente, fechaDeInicio, fechaDeFin, 1));
+            if (idNuevaMembresia == -1) {
+                System.out.println("Error al registrar la membresia");
+            }
+            else {
+                EventoMembresiaDAO eventoDAO = new EventoMembresiaDAO();
+                eventoDAO.agregarEventoMembresia(new EventoMembresia(-1, 1, idNuevaMembresia, 2, Timestamp.from(Instant.now()), ""));
+                System.out.println("Membresia registrada exitosamente. Fecha Inicio: " + fechaDeInicio + ", Fecha Fin: " + fechaDeFin);
+            }
         } catch (Exception e) {
-            System.out.println("Error al registrar la membresia" + e.getMessage());
+            System.out.println("Error al registrar la membresia: " + e.getMessage());
         }
 
     }
@@ -135,9 +146,11 @@ public class MembresiaFlujo {
                 Date fechaDeInicio = Date.valueOf(LocalDate.now());
                 Date fechaDeFin = Date.valueOf(LocalDate.now().plusDays(dias));
                 membresiaDAO.modificarMembresia(new Membresia(membresia.getId(), Integer.parseInt(idplan), idcliente, fechaDeInicio, fechaDeFin, 1));
+                EventoMembresiaDAO eventoDAO = new EventoMembresiaDAO();
+                eventoDAO.agregarEventoMembresia(new EventoMembresia(-1, 1, membresia.getId(), 1, Timestamp.from(Instant.now()), ""));
                 System.out.println("Membresia renovada exitosamente. Fecha Inicio: " + fechaDeInicio + ", Fecha Fin: " + fechaDeFin);
             } catch (Exception e) {
-                System.out.println("Error al registrar la membresia" + e.getMessage());
+                System.out.println("Error al renovar la membresia" + e.getMessage());
             }
         }
     }
@@ -147,6 +160,11 @@ public class MembresiaFlujo {
         membresiaDAO.listarMembresia();
     }
 
+    public void eventosMembresia() {
+        EventoMembresiaDAO eventoMembresiaDAO = new EventoMembresiaDAO();
+        eventoMembresiaDAO.listarEventoMembresia();
+    }
+
     public void mostrarMenu() {
         boolean seguir = true;
         while (seguir) {
@@ -154,7 +172,8 @@ public class MembresiaFlujo {
             System.out.println("1. Registrar membresía");
             System.out.println("2. Renovar membresía");
             System.out.println("3. Listar membresías");
-            System.out.println("4. Volver");
+            System.out.println("4. Eventos membresías");
+            System.out.println("5. Volver");
             System.out.print("Opcion: ");
             int op = scanner.nextInt();
             scanner.nextLine();
@@ -163,7 +182,8 @@ public class MembresiaFlujo {
                 case 1 -> registrarMembresia();
                 case 2 -> renovarMembresia();
                 case 3 -> listarMembresias();
-                case 4 -> seguir = false;
+                case 4 -> eventosMembresia();
+                case 5 -> seguir = false;
                 default -> System.out.println("Opcion invalida");
             }
         }

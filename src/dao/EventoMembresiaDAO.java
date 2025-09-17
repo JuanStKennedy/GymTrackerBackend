@@ -21,7 +21,7 @@ public class EventoMembresiaDAO {
             sentencia.setTimestamp(4, c.getFechaEvento());
             sentencia.setString(5, c.getObservaciones());
             sentencia.execute();
-            System.out.println("Evento de Membresía cargado correctamente.");
+            //System.out.println("Evento de Membresía cargado correctamente.");
         }catch(Exception e){
             System.out.println("Error: "+e.getMessage());
         }
@@ -66,7 +66,9 @@ public class EventoMembresiaDAO {
         }
     }
     public void listarEventoMembresia(){
-        String sql = "SELECT * FROM evento_membresia";
+        String sql = "SELECT ev.id, st.usuario_login as staff, ev.id_membresia, ti.nombre as tipo_evento, ev.fecha_evento, ev.observaciones " +
+                "FROM evento_membresia ev, tipo_evento ti, staff st " +
+                "WHERE ev.tipo_evento_id = ti.id AND ev.id_staff = st.id";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
@@ -74,16 +76,16 @@ public class EventoMembresiaDAO {
             ResultSet resultado = sentencia.executeQuery();
             while (resultado.next()) {
                 int id = resultado.getInt("id");
-                int id_staff = resultado.getInt("id_staff");
+                String staff = resultado.getString("staff");
                 int id_membresia = resultado.getInt("id_membresia");
-                int tipo_evento_id = resultado.getInt("tipo_evento_id");
+                String tipo_evento = resultado.getString("tipo_evento");
                 java.sql.Timestamp fecha_evento = resultado.getTimestamp("fecha_evento");
                 String observaciones = resultado.getString("observaciones");
 
                 System.out.println("ID: " + id);
-                System.out.println("ID Staff: " + id_staff);
+                System.out.println("Usuario Staff: " + staff);
                 System.out.println("ID Membresía: " + id_membresia);
-                System.out.println("ID Tipo Evento: " + tipo_evento_id);
+                System.out.println("Tipo Evento: " + tipo_evento);
                 System.out.println("Fecha Evento: " + fecha_evento);
                 System.out.println("Observaciones: " + observaciones);
                 System.out.println("-------------------------------");

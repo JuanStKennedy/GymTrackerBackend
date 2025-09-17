@@ -4,11 +4,7 @@ import db.databaseConection;
 import model.Membresia;
 import model.Movimiento;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Date;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,22 +12,27 @@ import static flow.UtilidadesFlujo.*;
 import static flow.UtilidadesFlujo.nvl;
 
 public class MembresiaDAO {
-    public void agregarMembresia(Membresia c) {
+    public int agregarMembresia(Membresia c) {
         String sql = "INSERT INTO membresia (id_plan, id_cliente, fecha_inicio, fecha_fin, estado_id) " +
                 "VALUES (?, ?, ?, ?, ?)";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
-            PreparedStatement sentencia = conexion.prepareStatement(sql);
+            PreparedStatement sentencia = conexion.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             sentencia.setInt(1, c.getIdPlan());
             sentencia.setString(2, c.getIdCliente());
             sentencia.setDate(3, c.getFechaInicio());
             sentencia.setDate(4, c.getFechaFin());
             sentencia.setInt(5, c.getEstadoId());
             sentencia.execute();
+            ResultSet rs = sentencia.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
             System.out.println("Membresía cargada correctamente.");
         }catch(Exception e){
             System.out.println("Error: "+e.getMessage());
         }
+        return -1;
     }
 
     public void eliminarMembresia(int id) {
