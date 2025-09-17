@@ -12,7 +12,7 @@ import java.util.List;
 
 public class RutinaClienteDAO {
 
-    private dbLogger logger = new dbLogger();
+//    private dbLogger logger = new dbLogger();
 
     public void agregarRutinaCliente(RutinaCliente rc) {
         String sql = "INSERT INTO rutina_cliente (id_cliente, id_rutina, fecha_asignacion, estado) VALUES (?, ?, ?, ?)";
@@ -24,7 +24,7 @@ public class RutinaClienteDAO {
             ps.setString(4, rc.getEstado());
             ps.executeUpdate();
 
-            logger.insertarLog(dbLogger.Accion.INSERT, "Rutina Cliente creada para cliente= " + rc.getIdCliente());
+//            logger.insertarLog(dbLogger.Accion.INSERT, "Rutina Cliente creada para cliente= " + rc.getIdCliente());
             System.out.println("Rutina Cliente insertada correctamente.");
         } catch (Exception e) {
             System.out.println("Error al insertar rutina cliente: " + e.getMessage());
@@ -43,7 +43,7 @@ public class RutinaClienteDAO {
 
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                logger.insertarLog(dbLogger.Accion.UPDATE, "Rutina cliente de " + rc.getIdCliente() + " editada correctamente.");
+//                logger.insertarLog(dbLogger.Accion.UPDATE, "Rutina cliente de " + rc.getIdCliente() + " editada correctamente.");
                 System.out.println("Rutina cliente modificada correctamente.");
             } else {
                 System.out.println("No se encontro RutinaCliente con ID: " + rc.getId());
@@ -60,7 +60,7 @@ public class RutinaClienteDAO {
             ps.setInt(1, id);
             ps.executeUpdate();
 
-            logger.insertarLog(dbLogger.Accion.DELETE, "RutinaCliente eliminada ID=" + id);
+//            logger.insertarLog(dbLogger.Accion.DELETE, "RutinaCliente eliminada ID=" + id);
             System.out.println("RutinaCliente eliminada correctamente.");
         } catch (Exception e) {
             System.out.println("Error al eliminar Rutina Cliente: " + e.getMessage());

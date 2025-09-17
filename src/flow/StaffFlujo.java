@@ -1,5 +1,9 @@
 package flow;
 
+import dao.StaffDAO;
+import model.Staff;
+
+import java.util.List;
 import java.util.Scanner;
 
 public class StaffFlujo {
@@ -7,26 +11,186 @@ public class StaffFlujo {
     public StaffFlujo(Scanner scanner) {
         this.scanner = scanner;
     }
+    private final StaffDAO staffDAO = new StaffDAO();
 
     public void mostrarMenu() {
         boolean seguir = true;
         while (seguir) {
             System.out.println("--- Staff Flujo ---");
-            System.out.println("1. ");
-            System.out.println("2. ");
-            System.out.println("3. ");
-            System.out.println("4. Volver");
+            System.out.println("1.Alta de Staff");
+            System.out.println("2.Modificar Staff");
+            System.out.println("3.Baja de Staff");
+            System.out.println("4.Listar Staff");
+            System.out.println("5.Volver");
             System.out.print("Opcion: ");
-            int op = scanner.nextInt();
-            scanner.nextLine();
 
-            switch (op) {
-                case 1 -> mostrarMenu();
-                case 2 -> mostrarMenu();
-                case 3 -> mostrarMenu();
-                case 4 -> seguir = false;
+            String opcion = scanner.nextLine();
+            int opcionInt = 0;
+            if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
+            switch (opcionInt) {
+                case 1 -> alta();
+                case 2 -> modificar();
+                case 3 -> baja();
+                case 4 -> listar();
+                case 5 -> seguir = false;
                 default -> System.out.println("Opcion invalida");
             }
+        }
+    }
+
+    private void alta() {
+        System.out.println("--- Alta de Staff ---");
+
+        String usuario;
+        while (true) {
+            System.out.print("Usuario Login: ");
+            usuario = scanner.nextLine();
+            if (!usuario.isEmpty()) break;
+            System.out.println("El usuario no puede estar vacio.");
+        }
+
+        String nombre;
+        while (true) {
+            System.out.print("Nombre Completo: ");
+            nombre = scanner.nextLine();
+            if (!nombre.isEmpty()) break;
+            System.out.println("El nombre no puede estar vacío");
+        }
+
+        int rol;
+        while (true) {
+            System.out.print("Administrador? (S/N): ");
+            String linea = scanner.nextLine();
+            linea = linea.toUpperCase();
+            if (linea.equals("S")) {
+                rol = 1;
+                break;
+            } else if (linea.equals("N")) {
+                rol = 0;
+                break;
+            } else  {
+                System.out.println("Opcion invalida");
+            }
+        }
+
+        int estado;
+        while (true) {
+            System.out.print("Ingreso el estado: \n");
+            System.out.print("A:Activo \nI:Inactivo \n");
+            String linea = scanner.nextLine();
+            linea = linea.toUpperCase();
+            if (linea.equals("A")) {
+                estado = 1;
+                break;
+            } else if (linea.equals("I")) {
+                estado = 0;
+                break;
+            } else  {
+                System.out.println("Opcion invalida");
+            }
+        }
+
+        Staff s = new Staff(usuario, nombre, rol, estado);
+        staffDAO.crearStaff(s);
+    }
+
+    private void modificar() {
+        System.out.println("--- Modificar Staff ---");
+
+        int id;
+        while (true) {
+            System.out.print("ID del staff a modificar: ");
+            String linea = scanner.nextLine();
+            if (linea.matches("\\d+")) { id = Integer.parseInt(linea); break; } else {
+                System.out.println("Ingrese una ID valida");
+            }
+        }
+
+        String usuario;
+        while (true) {
+            System.out.print("Usuario Login: ");
+            usuario = scanner.nextLine();
+            if (!usuario.isEmpty()) break;
+            System.out.println("El usuario no puede estar vacio");
+        }
+
+        String nombre;
+        while (true) {
+            System.out.print("Nuevo Nombre Completo: ");
+            nombre = scanner.nextLine();
+            if (!nombre.isEmpty()) break;
+            System.out.println("El nombre no puede estar vacío");
+        }
+
+        int rol;
+        while (true) {
+            System.out.print("Administrador? (S/N): ");
+            String linea = scanner.nextLine();
+            linea = linea.toUpperCase();
+            if (linea.equals("S")) {
+                rol = 1;
+                break;
+            } else if (linea.equals("N")) {
+                rol = 0;
+                break;
+            } else  {
+                System.out.println("Opcion invalida");
+            }
+        }
+
+        int estado;
+        while (true) {
+            System.out.print("Ingreso el estado: \n");
+            System.out.print("A:Activo \nI:Inactivo \n");
+            String linea = scanner.nextLine();
+            linea = linea.toUpperCase();
+            if (linea.equals("A")) {
+                estado = 1;
+                break;
+            } else if (linea.equals("I")) {
+                estado = 0;
+                break;
+            } else  {
+                System.out.println("Opcion invalida");
+            }
+        }
+
+        Staff s = new Staff(id, usuario, nombre, rol, estado);
+        staffDAO.editarStaff(s);
+    }
+
+    private void baja() {
+        System.out.println("--- Baja de Staff ---");
+
+        int id;
+        while (true) {
+            System.out.print("ID del staff a eliminar: ");
+            String linea = scanner.nextLine().trim();
+            try {
+                id = Integer.parseInt(linea);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Ingrese un número válido para ID.");
+            }
+        }
+
+        staffDAO.eliminarStaff(id);
+    }
+
+    private void listar() {
+        System.out.println("--- Listado de Staff ---");
+        List<Staff> lista = staffDAO.listarStaff();
+        if (lista.isEmpty()) {
+            System.out.println("No hay ningun staff registrado");
+            return;
+        }
+        System.out.println("ID | Usuario | Nombre Completo | Rol | Estado");
+        System.out.println("-----------------------------------------------");
+
+        for (Staff st : lista) {
+            System.out.println(
+                    st.getId() + " | " + st.getUsuarioLogin() + " | " + st.getNombreCompleto() + " | " + st.getRol() + " | " + st.getEstado()
+            );
         }
     }
 }

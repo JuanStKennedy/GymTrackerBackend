@@ -13,7 +13,7 @@ import java.util.List;
 
 public class StaffDAO {
 
-    private dbLogger logger = new dbLogger();
+//    private dbLogger logger = new dbLogger();
 
     public void crearStaff(Staff s) {
         String sql = "INSERT INTO staff (usuario_login, nombre_completo, rol, estado) VALUES (?,?,?,?)";
@@ -27,7 +27,7 @@ public class StaffDAO {
 
             ps.executeUpdate();
 
-            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + s.getUsuarioLogin());
+//            logger.insertarLog(dbLogger.Accion.INSERT, "Staff creado: " + s.getUsuarioLogin());
             System.out.println("Staff creado correctamente.");
 
         } catch (Exception e) {
@@ -48,7 +48,7 @@ public class StaffDAO {
             int filas = ps.executeUpdate();
 
             if (filas > 0) {
-                logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + s.getId() + " editado");
+//                logger.insertarLog(dbLogger.Accion.UPDATE, "Staff con id = " + s.getId() + " editado");
                 System.out.println("Staff actualizado correctamente.");
             } else {
                 System.out.println("No se encontro al staff con id = " + s.getId());
@@ -87,7 +87,7 @@ public class StaffDAO {
             PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
             ps.setInt(1, id);
             ps.executeUpdate();
-            logger.insertarLog(dbLogger.Accion.DELETE, "Staff con id = " + id + " eliminado");
+//            logger.insertarLog(dbLogger.Accion.DELETE, "Staff con id = " + id + " eliminado");
             System.out.println("Staff eliminado correctamente ");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

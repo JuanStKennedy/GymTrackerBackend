@@ -22,9 +22,10 @@ public class MenuFlujo {
                 System.out.println("7.Ejercicio Flujo");
                 System.out.println("8.Salir");
                 System.out.println("Opcion:");
-                int opcion = scanner.nextInt();
-                scanner.nextLine();
-                switch (opcion) {
+                String opcion = scanner.nextLine();
+                int opcionInt = 0;
+                if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
+                switch (opcionInt) {
                     case 1 -> irMenuCliente();
                     case 2 -> irMenuStaff();
                     case 3 -> irMenuMovimiento();
