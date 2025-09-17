@@ -3,6 +3,8 @@ package flow;
 import dao.StaffDAO;
 import model.Staff;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.Scanner;
 
@@ -45,7 +47,14 @@ public class StaffFlujo {
         while (true) {
             System.out.print("Usuario Login: ");
             usuario = scanner.nextLine();
-            if (!usuario.isEmpty()) break;
+            if (!usuario.isEmpty()) {
+                if (staffDAO.existeStaffPorUsuarioLogin(usuario)) {
+                    System.out.println("Ya existe un Staff con ese Usuario Login");
+                    return;
+                } else {
+                    break;
+                }
+            }
             System.out.println("El usuario no puede estar vacio.");
         }
 
@@ -101,7 +110,15 @@ public class StaffFlujo {
         while (true) {
             System.out.print("ID del staff a modificar: ");
             String linea = scanner.nextLine();
-            if (linea.matches("\\d+")) { id = Integer.parseInt(linea); break; } else {
+            if (linea.matches("\\d+")) {
+                id = Integer.parseInt(linea);
+                    if (!staffDAO.existeStaffPorId(id)) {
+                        System.out.println("No existe un staff con esa ID");
+                        return;
+                    } else {
+                        break;
+                    }
+            } else {
                 System.out.println("Ingrese una ID valida");
             }
         }
@@ -110,7 +127,14 @@ public class StaffFlujo {
         while (true) {
             System.out.print("Usuario Login: ");
             usuario = scanner.nextLine();
-            if (!usuario.isEmpty()) break;
+            if (!usuario.isEmpty()) {
+                if (staffDAO.existeStaffPorUsuarioLogin(usuario)) {
+                    System.out.println("Ya existe un Staff con ese Usuario Login");
+                    return;
+                } else {
+                    break;
+                }
+            }
             System.out.println("El usuario no puede estar vacio");
         }
 
@@ -184,12 +208,24 @@ public class StaffFlujo {
             System.out.println("No hay ningun staff registrado");
             return;
         }
-        System.out.println("ID | Usuario | Nombre Completo | Rol | Estado");
+        System.out.println("ID | Usuario | Nombre Completo | ¿Administrador? | Estado");
         System.out.println("-----------------------------------------------");
 
+        String Rol = "No";
+        String Estado = "Inactivo";
         for (Staff st : lista) {
+            if (st.getRol()==1) {Rol = "Si";} else {
+                Rol = "No";
+            }
+            if (st.getEstado()==1) { Estado = "Activo";} else {
+                Estado = "Inactivo";
+            }
             System.out.println(
-                    st.getId() + " | " + st.getUsuarioLogin() + " | " + st.getNombreCompleto() + " | " + st.getRol() + " | " + st.getEstado()
+                    st.getId() + " | "
+                            + st.getUsuarioLogin() + " | "
+                            + st.getNombreCompleto() + " | "
+                            + Rol + " | "
+                            + Estado
             );
         }
     }
