@@ -26,10 +26,10 @@ public class MenuFlujo {
                 int opcionInt = 0;
                 if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
                 switch (opcionInt) {
-                    case 1 -> irMenuCliente();
+                    case 1 -> new ClienteFlujo().run();
                     case 2 -> irMenuStaff();
-                    case 3 -> irMenuMovimiento();
-                    case 4 -> irMenuPlan();
+                    case 3 -> new MovimientoFlujo().run();
+                    case 4 -> new PlanFlujo().run();
                     case 5 -> irMenuMembresia();
                     case 6 -> irMenuRutina();
                     case 7 -> irMenuEjercicio();
@@ -41,22 +41,22 @@ public class MenuFlujo {
             }
         }
     }
-    private void irMenuCliente() {
-        ClienteFlujo clienteFlujo = new ClienteFlujo(scanner);
-        clienteFlujo.mostrarMenu();
-    }
+//    private void irMenuCliente() {
+//        ClienteFlujo clienteFlujo = new ClienteFlujo(scanner);
+//        clienteFlujo.mostrarMenu();
+//    }
     private void irMenuStaff() {
         StaffFlujo staffFlujo = new StaffFlujo(scanner);
         staffFlujo.mostrarMenu();
     }
-    private void irMenuMovimiento() {
-        MovimientoFlujo movimientoFlujo = new MovimientoFlujo(scanner);
-        movimientoFlujo.mostrarMenu();
-    }
-    private void irMenuPlan() {
-        PlanFlujo planFlujo = new PlanFlujo(scanner);
-        planFlujo.mostrarMenu();
-    }
+//    private void irMenuMovimiento() {
+//        MovimientoFlujo movimientoFlujo = new MovimientoFlujo(scanner);
+//        movimientoFlujo.mostrarMenu();
+//    }
+//    private void irMenuPlan() {
+//        PlanFlujo planFlujo = new PlanFlujo(scanner);
+//        planFlujo.mostrarMenu();
+//    }
     private void irMenuMembresia() {
         MembresiaFlujo membresiaFlujo = new MembresiaFlujo(scanner);
         membresiaFlujo.mostrarMenu();
