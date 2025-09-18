@@ -100,4 +100,41 @@ public class RutinaDAO {
         }
         return listaRutinas;
     }
+
+    public boolean existePorNombre(String nombre) {
+        final String sql = "SELECT 1 FROM rutina WHERE LOWER(nombre) = LOWER(?)";
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (PreparedStatement sentencia = cn.prepareStatement(sql)) {
+            sentencia.setString(1, nombre);
+            try (ResultSet rs = sentencia.executeQuery()) {
+                return rs.next();
+            }
+        } catch (Exception e) {
+            System.out.println("Error al verificar existencia de rutina: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public Rutina buscarPorId(int id) {
+        final String sql = "SELECT id, nombre, objetivo, duracion_semanas FROM rutina WHERE id = ?";
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (PreparedStatement sentencia = cn.prepareStatement(sql)) {
+            sentencia.setInt(1, id);
+            try (ResultSet rs = sentencia.executeQuery()) {
+                if (rs.next()) {
+                    Rutina r = new Rutina();
+                    r.setId(rs.getInt("id"));
+                    r.setNombre(rs.getString("nombre"));
+                    r.setObjetivo(Objetivo.valueOf(rs.getString("objetivo").toUpperCase()));
+                    r.setDuracionSemanas(rs.getInt("duracion_semanas"));
+                    return r;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error al buscar rutina por id: " + e.getMessage());
+        }
+        return null;
+    }
+
+
 }

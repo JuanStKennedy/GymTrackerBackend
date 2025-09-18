@@ -38,23 +38,31 @@ public class RutinaFlujo {
         }
     }
     private void crearRutina() {
-        System.out.println("Ingrese el nombre de la rutina:");
-        String nombre = scanner.nextLine();
-
-        Objetivo objetivo = null;
-        System.out.println("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia):");
-        String objetivoStr = scanner.nextLine();
-        objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
-
-        System.out.println("Ingrese la duracion en semanas:");
-        int semanas = scanner.nextInt();
-
-        Rutina nuevaRutina = new Rutina(nombre, objetivo, semanas);
         RutinaDAO rutinaDAO = new RutinaDAO();
+        String nombre;
+        while (true) {
+            nombre = UtilidadesFlujo.leerNoVacio("Ingrese el nombre de la rutina: ");
+            if (rutinaDAO.existePorNombre(nombre)) {
+                System.out.println("Error: ya existe una rutina con ese nombre. Intente con otro.");
+            } else {
+                break;
+            }
+        }
+        String objetivoStr;
+        Objetivo objetivo = null;
+        while (objetivo == null) {
+            objetivoStr = UtilidadesFlujo.leerNoVacio("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia): ");
+            try {
+                objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Debe ser Hipertrofia, Fuerza o Resistencia.");
+            }
+        }
+        int semanas = UtilidadesFlujo.leerEnteroPositivo("Ingrese la duración en semanas: ");
+        Rutina nuevaRutina = new Rutina(nombre, objetivo, semanas);
         rutinaDAO.agregarRutina(nuevaRutina);
-
-        System.out.println("Rutina creada correctamente");
     }
+
 
     private void listarRutinas() {
         System.out.println("Listado de rutinas:");
@@ -66,53 +74,81 @@ public class RutinaFlujo {
     }
 
     private void eliminarRutina() {
-        listarRutinas();
-        System.out.println("Ingrese el ID de la rutina:");
-        int id = scanner.nextInt();
-
-        Rutina rutinaEliminar = new Rutina(id);
         RutinaDAO rutinaDAO = new RutinaDAO();
-        rutinaDAO.eliminarRutina(rutinaEliminar);
-
-        System.out.println("Rutina eliminada correctamente");
-
+        Rutina rutinaEliminar = null;
+        while (rutinaEliminar == null) {
+            listarRutinas();
+            int id = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID de la rutina a eliminar: ");
+            rutinaEliminar = rutinaDAO.buscarPorId(id);
+            if (rutinaEliminar == null) {
+                System.out.println("Error: ese ID no existe en el sistema. Intente nuevamente.");
+            }
+        }
+        String confirmacion = UtilidadesFlujo.leerNoVacio("¿Está seguro que desea eliminar la rutina '" + rutinaEliminar.getNombre() + "' (ID: " + rutinaEliminar.getId() + ")? (S/N): ");
+        if (confirmacion.equalsIgnoreCase("S")) {
+            rutinaDAO.eliminarRutina(rutinaEliminar);
+            System.out.println("Rutina eliminada correctamente.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
     }
 
     private void editarRutina() {
-        listarRutinas();
-        System.out.println("Ingrese el ID de la rutina:");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.println("Ingrese el nuevo nombre de la rutina:");
-        String nombre = scanner.nextLine();
-
+        RutinaDAO rutinaDAO = new RutinaDAO();
+        Rutina rutinaEditar = null;
+        while (rutinaEditar == null) {
+            listarRutinas();
+            int id = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID de la rutina a editar: ");
+            rutinaEditar = rutinaDAO.buscarPorId(id);
+            if (rutinaEditar == null) {
+                System.out.println("Error: ese ID no existe en el sistema. Intente nuevamente.");
+            }
+        }
+        String nombre;
+        while (true) {
+            nombre = UtilidadesFlujo.leerNoVacio("Ingrese el nuevo nombre de la rutina: ");
+            if (!nombre.equalsIgnoreCase(rutinaEditar.getNombre()) && rutinaDAO.existePorNombre(nombre)) { //esto de acá es por si el nuevo nombre es distinto del actual y que no exista en la base
+                System.out.println("Error: ya existe una rutina con ese nombre. Intente con otro.");
+            } else {
+                break;
+            }
+        }
         Objetivo objetivo = null;
-        System.out.println("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia):");
-        String objetivoStr = scanner.nextLine();
-        objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
-
-        System.out.println("Ingrese la duracion en semanas:");
-        int semanas = scanner.nextInt();
-
-        Rutina nuevaRutina = new Rutina(id, nombre, objetivo, semanas);
-        RutinaDAO rutinaDAO2 = new RutinaDAO();
-        rutinaDAO2.modificarRutina(nuevaRutina);
-
-        System.out.println("Rutina actualizada correctamente");
-
+        while (objetivo == null) {
+            String objetivoStr = UtilidadesFlujo.leerNoVacio("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia): ");
+            try {
+                objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Debe ser Hipertrofia, Fuerza o Resistencia.");
+            }
+        }
+        int semanas = UtilidadesFlujo.leerEnteroPositivo("Ingrese la nueva duración en semanas: ");
+        Rutina rutinaActualizada = new Rutina(rutinaEditar.getId(), nombre, objetivo, semanas);
+        rutinaDAO.modificarRutina(rutinaActualizada);
+        System.out.println("Rutina actualizada correctamente.");
     }
 
-    private void listarRutinasPorObjetivo() {
-        Objetivo objetivo = null;
-        System.out.println("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia):");
-        String objetivoStr = scanner.nextLine();
-        objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
-        RutinaDAO rutinaDAO = new RutinaDAO();
 
+    private void listarRutinasPorObjetivo() {
+        String objetivoStr;
+        Objetivo objetivo = null;
+        while (objetivo == null) {
+            objetivoStr = UtilidadesFlujo.leerNoVacio("Ingrese el objetivo de la rutina (Hipertrofia, Fuerza, Resistencia): ");
+            try {
+                objetivo = Objetivo.valueOf(objetivoStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error. Debe ser Hipertrofia, Fuerza o Resistencia.");
+            }
+        }
+        RutinaDAO rutinaDAO = new RutinaDAO();
         List<Rutina> rutinas = rutinaDAO.listarRutinasPorObjetivo(objetivo);
-        for (Rutina rutina : rutinas) {
-            System.out.println(rutina.toString());
+        if (rutinas.isEmpty()) {
+            System.out.println("No hay rutinas con el objetivo: " + objetivo);
+        } else {
+            System.out.println("Listado de rutinas:");
+            for (Rutina rutina : rutinas) {
+                System.out.println(rutina.toString());
+            }
         }
     }
 }
