@@ -23,10 +23,10 @@ public class EjercicioFlujo {
             System.out.println("5. Listar Ejercicios por Grupo Muscular");
             System.out.println("6. Volver");
             System.out.print("Opcion: ");
-            int op = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (op) {
+            String opcion = scanner.nextLine();
+            int opcionInt = 0;
+            if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
+            switch (opcionInt){
                 case 1 -> crearEjercicio();
                 case 2 -> eliminarEjercicio();
                 case 3 -> editarEjercicio();

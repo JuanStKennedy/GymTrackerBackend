@@ -253,10 +253,10 @@ public class MembresiaFlujo {
             System.out.println("5. Eventos membresías");
             System.out.println("6. Volver");
             System.out.print("Opcion: ");
-            int op = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (op) {
+            String opcion = scanner.nextLine();
+            int opcionInt = 0;
+            if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
+            switch (opcionInt){
                 case 1 -> registrarMembresia();
                 case 2 -> renovarMembresia();
                 case 3 -> listarMembresias();

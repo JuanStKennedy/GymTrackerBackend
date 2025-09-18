@@ -23,10 +23,10 @@ public class RutinaFlujo {
             System.out.println("5. Listar Rutinas por Objetivo");
             System.out.println("6. Volver");
             System.out.print("Opcion: ");
-            int op = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (op) {
+            String opcion = scanner.nextLine();
+            int opcionInt = 0;
+            if (opcion.matches("\\d+")) { opcionInt = Integer.parseInt(opcion); }
+            switch (opcionInt) {
                 case 1 -> crearRutina();
                 case 2 -> eliminarRutina();
                 case 3 -> editarRutina();
