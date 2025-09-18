@@ -49,6 +49,7 @@ public class ClienteFlujo {
     private void altaCliente() {
         System.out.println("\n      Alta de Cliente");
         String ci = leerNoVacio("CI: ");
+        if (!ci.matches("\\d+")) {System.out.println("Error: La cedula solo debe estar compuesta por numeros"); return; }
         String email = leerNoVacio("Email: ");
         String nombre = leerNoVacio("Nombre: ");
         String apellido = leerNoVacio("Apellido: ");
