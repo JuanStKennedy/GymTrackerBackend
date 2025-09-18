@@ -66,6 +66,11 @@ public class ClienteFlujo {
     private void bajaCliente() {
         System.out.println("\n      Baja (eliminar) Cliente");
         String ci = leerNoVacio("CI del cliente a eliminar: ");
+        Cliente actual = dao.buscarPorCi(ci);
+        if (actual == null) {
+            System.out.println("No existe un cliente con ese CI.");
+            return;
+        }
         if (confirmar("¿Confirmar eliminación? (s/n): ")) {
             dao.eliminarCliente(ci);
         }
