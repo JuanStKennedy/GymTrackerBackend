@@ -107,6 +107,7 @@ public class StaffFlujo {
         System.out.println("--- Modificar Staff ---");
 
         int id;
+        listar();
         while (true) {
             System.out.print("ID del staff a modificar: ");
             String linea = scanner.nextLine();
@@ -187,6 +188,7 @@ public class StaffFlujo {
         System.out.println("--- Baja de Staff ---");
 
         int id;
+        listar();
         while (true) {
             System.out.print("ID del staff a eliminar: ");
             String linea = scanner.nextLine().trim();
