@@ -6,25 +6,38 @@ import java.time.LocalDateTime;
 import java.sql.*;
 import db.databaseConection;
 import model.Movimiento;
-import dto.MovimientoView;
+import dto.*;
 public class MovimientoDAO {
     //inserts
-    public void insertarMovimiento(Movimiento movimiento){
-        String sql ="INSERT INTO movimiento (id_staff, fecha_hora, importe," +
-                " medio_pago_id, tipo_cliente_id, origen_id, id_membresia, id_cliente)"+
-                "VALUES (?,?,?,?,?,?,?,?)";
+    public void insertarMovimiento(Movimiento m){
+        final String sql = """
+        INSERT INTO movimiento
+            (id_staff, fecha_hora, importe, medio_pago_id, tipo_cliente_id, origen_id, id_membresia, id_cliente)
+        VALUES
+            (?, COALESCE(?, CURRENT_TIMESTAMP), ?, ?, ?, ?, ?, ?)
+        """;
+
+
         Connection conexion = databaseConection.getInstancia().getConnection();
-        try(
-            PreparedStatement sentencia = conexion.prepareStatement(sql);){
-            sentencia.setInt(1,movimiento.getIdStaff());
-            sentencia.setTimestamp(2, Timestamp.valueOf(movimiento.getFechaHora()));
-            sentencia.setBigDecimal(3, movimiento.getImporte());
-            sentencia.setByte(4, movimiento.getMedioPagoID());
-            sentencia.setByte(5, movimiento.getTipoClienteID());
-            sentencia.setByte(6, movimiento.getOrigenId());
-            sentencia.setObject(7, movimiento.getIdMembresia(), Types.INTEGER); // por si termina habiendo un null
-            sentencia.setString(8, movimiento.getIdCliente());
-            sentencia.execute();
+        try(PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, m.getIdStaff());
+
+            // <-- clave: null seguro aquí; COALESCE pone CURRENT_TIMESTAMP
+            if (m.getFechaHora() == null) {
+                ps.setTimestamp(2, null);
+            } else {
+                ps.setTimestamp(2, Timestamp.valueOf(m.getFechaHora()));
+            }
+
+            ps.setBigDecimal(3, m.getImporte());
+            ps.setByte(4, m.getMedioPagoID());
+            ps.setByte(5, m.getTipoClienteID());
+            ps.setByte(6, m.getOrigenId());
+            ps.setObject(7, m.getIdMembresia(), java.sql.Types.INTEGER); // puede ser null
+            ps.setString(8, m.getIdCliente());                            // puede ser null
+
+            ps.executeUpdate();
         }catch(SQLException ex){
             System.out.print(ex.getMessage());
         }
@@ -261,6 +274,70 @@ public class MovimientoDAO {
         }
     }
 
+    public List<IdNombre> listarMediosPago() throws SQLException {
+        final String sql = "SELECT id, nombre FROM medio_pago ORDER BY id";
+        Connection c = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<IdNombre> out = new ArrayList<>();
+            while (rs.next()) out.add(new IdNombre(rs.getInt("id"), rs.getString("nombre")));
+            return out;
+        }
+    }
+
+    public List<IdNombre> listarTiposCliente() throws SQLException {
+        final String sql = "SELECT id, nombre FROM tipo_cliente ORDER BY id";
+        Connection c = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<IdNombre> out = new ArrayList<>();
+            while (rs.next()) out.add(new IdNombre(rs.getInt("id"), rs.getString("nombre")));
+            return out;
+        }
+    }
+
+    public List<IdNombre> listarOrigenesMovimiento() throws SQLException {
+        final String sql = "SELECT id, nombre FROM origen_movimiento ORDER BY id";
+        Connection c = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<IdNombre> out = new ArrayList<>();
+            while (rs.next()) out.add(new IdNombre(rs.getInt("id"), rs.getString("nombre")));
+            return out;
+        }
+    }
+    public List<ClienteMin> listarClientesMin() throws SQLException {
+        final String sql = "SELECT ci, CONCAT(nombre,' ',apellido) AS nom FROM cliente ORDER BY nom";
+        Connection c = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<ClienteMin> out = new ArrayList<>();
+            while (rs.next()) out.add(new ClienteMin(rs.getString("ci"), rs.getString("nom")));
+            return out;
+        }
+    }
+
+    public List<MembresiaMin> listarMembresiasMin() throws SQLException {
+        final String sql = """
+        SELECT me.id, me.id_cliente AS ci, CONCAT(c.nombre,' ',c.apellido) AS nom
+        FROM membresia me
+        JOIN cliente c ON c.ci = me.id_cliente
+        ORDER BY me.id DESC
+        """;
+        Connection c = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = c.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<MembresiaMin> out = new ArrayList<>();
+            while (rs.next()) out.add(new MembresiaMin(rs.getInt("id"), rs.getString("ci"), rs.getString("nom")));
+            return out;
+        }
+    }
+
     //Transformamos de resultset a objeto movimiento
     private Movimiento mapMovimiento (ResultSet rs) throws SQLException {
         Movimiento mov = new Movimiento();
@@ -292,6 +369,22 @@ public class MovimientoDAO {
                 rs.getObject("id_membresia", Integer.class),
                 rs.getString("cliente_nombre")
         );
+    }
+
+    public boolean membresiaPerteneceACliente(int idMembresia, String ciCliente) {
+        final String sql = "SELECT 1 FROM membresia WHERE id = ? AND id_cliente = ? LIMIT 1";
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setInt(1, idMembresia);
+            ps.setString(2, ciCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // true si existe esa relación
+            }
+        } catch (Exception e) {
+            System.out.println("Error verificando membresía/cliente: " + e.getMessage());
+            return false;
+        }
     }
 
 }

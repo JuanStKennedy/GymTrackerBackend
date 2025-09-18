@@ -2,10 +2,14 @@ package flow;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.LocalDateTime;
+import java.time.*;
+import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
+import dto.*;
 
 public final class UtilidadesFlujo {
 
@@ -78,14 +82,20 @@ public final class UtilidadesFlujo {
     }
 
     public static Date leerFechaSql(String prompt) {
+        SimpleDateFormat formatoUsuario = new SimpleDateFormat("dd-MM-yyyy");
+        formatoUsuario.setLenient(false); // Se supone que no permite fechas inválidas como 32-13-2025
+
         while (true) {
             System.out.print(prompt);
             String s = IN.nextLine().trim();
             try {
-                // Formato esperado: YYYY-MM-DD
-                return Date.valueOf(s);
-            } catch (Exception ignored) {
-                System.out.println("Formato inválido. Use YYYY-MM-DD (ej: 2025-09-01).");
+                // parseamo el string del usuario
+                java.util.Date fecha = formatoUsuario.parse(s);
+
+                // Cconvertimos a java.sql.Date
+                return new Date(fecha.getTime());
+            } catch (ParseException e) {
+                System.out.println("Formato inválido. Use DD-MM-YYYY (ej: 17-09-2025).");
             }
         }
     }
@@ -176,6 +186,7 @@ public final class UtilidadesFlujo {
         }
     }
 
+
     public static LocalDateTime parseFechaHoraOr(String raw, LocalDateTime def) {
         if (raw == null || raw.isBlank()) return def;
         try { return LocalDateTime.parse(raw.trim(), FMT); } catch (Exception ignored) { return def; }
@@ -200,6 +211,100 @@ public final class UtilidadesFlujo {
             return Integer.valueOf(raw.trim());
         } catch (Exception ignored) {
             return def;
+        }
+    }
+    //Correcciones Movimiento
+    public static void imprimirOpcionesIdNombre(String titulo, List<IdNombre> ops) {
+        System.out.println("\n-- " + titulo + " --");
+        for (IdNombre o : ops) System.out.println("  " + o);
+    }
+
+    public static Integer seleccionarIdDeOpciones(List<IdNombre> ops, String prompt, boolean permitirVacio) {
+        if (ops == null || ops.isEmpty()) {
+            System.out.println("(No hay opciones disponibles)");
+            return null;
+        }
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            if (permitirVacio && s.isBlank()) return null;
+            try {
+                int id = Integer.parseInt(s);
+                for (IdNombre o : ops) if (o.getId() == id) return id;
+                System.out.println("ID inválido. Ingrese uno de la lista.");
+            } catch (Exception ignored) {
+                System.out.println("Ingrese un número de ID válido.");
+            }
+        }
+    }
+
+    public static void imprimirOpcionesClientes(String titulo, List<ClienteMin> ops) {
+        System.out.println("\n-- " + titulo + " --");
+        for (ClienteMin c : ops) System.out.println("  " + c);
+    }
+
+    public static String seleccionarClienteCI(List<ClienteMin> ops, String prompt, boolean permitirVacio) {
+        if (ops == null || ops.isEmpty()) {
+            System.out.println("(No hay clientes)");
+            return null;
+        }
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            if (permitirVacio && s.isBlank()) return null;
+            for (ClienteMin c : ops) if (c.getCi().equals(s)) return s;
+            System.out.println("CI inválido. Ingrese uno de la lista.");
+        }
+    }
+
+    public static void imprimirOpcionesMembresias(String titulo, List<MembresiaMin> ops) {
+        System.out.println("\n-- " + titulo + " --");
+        for (MembresiaMin m : ops) System.out.println("  " + m);
+    }
+
+    public static Integer seleccionarMembresiaId(List<MembresiaMin> ops, String prompt, boolean permitirVacio) {
+        if (ops == null || ops.isEmpty()) {
+            System.out.println("(No hay membresías)");
+            return null;
+        }
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            if (permitirVacio && s.isBlank()) return null;
+            try {
+                int id = Integer.parseInt(s);
+                for (MembresiaMin m : ops) if (m.getId() == id) return id;
+                System.out.println("ID inválido. Ingrese uno de la lista.");
+            } catch (Exception ignored) {
+                System.out.println("Ingrese un número de ID válido.");
+            }
+        }
+    }
+
+    private static final DateTimeFormatter FMT_DAY = DateTimeFormatter.ofPattern("dd-MM-uuuu");
+
+    public static LocalDateTime leerFechaDia(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            try {
+                LocalDate d = LocalDate.parse(s, FMT_DAY);
+                return d.atStartOfDay(); // 00:00
+            } catch (Exception ignored) {
+                System.out.println("Formato inválido. Use DD-MM-YYYY (ej: 17-09-2025).");
+            }
+        }
+    }
+    public static LocalDateTime leerFechaDiaFin(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String s = IN.nextLine().trim();
+            try {
+                LocalDate d = LocalDate.parse(s, FMT_DAY);
+                return d.plusDays(1).atStartOfDay(); // cubre tod0 el día ingresado
+            } catch (Exception ignored) {
+                System.out.println("Formato inválido. Use DD-MM-YYYY (ej: 17-09-2025).");
+            }
         }
     }
 }

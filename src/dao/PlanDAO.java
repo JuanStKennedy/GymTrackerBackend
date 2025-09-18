@@ -4,7 +4,7 @@ import model.Plan;
 import db.databaseConection;
 import java.util.ArrayList;
 import java.util.List;
-
+import model.UnidadDuracion;
 public class PlanDAO {
 
     public void agregarPlan(Plan p) {
@@ -49,15 +49,27 @@ public class PlanDAO {
     }
 
     public List<Plan> listarTodos() {
-        final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado FROM plan ORDER BY id";
+        final String sql = """
+                SELECT p.id, p.nombre, p.valor, p.duracion_total,
+                       p.duracion_unidad_id,           -- ← vuelve el ID
+                       u.nombre AS duracion_unidad_nombre,
+                       p.urlImagen, p.estado
+                FROM plan p
+                JOIN duracion_unidad u ON u.id = p.duracion_unidad_id
+                ORDER BY p.id
+            """;
         List<Plan> lista = new ArrayList<>();
         Connection cn = databaseConection.getInstancia().getConnection();
         try (
-             PreparedStatement ps = cn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = cn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                lista.add(mapPlan(rs));
+                Plan plan = mapPlan(rs);
+                try {
+                    plan.setDuracionUnidadNombre(rs.getString("duracion_unidad_nombre"));
+                } catch (SQLException ignore) {}
+                lista.add(plan);
             }
         } catch (Exception e) {
             System.out.println("Error al listar planes: " + e.getMessage());
@@ -66,16 +78,28 @@ public class PlanDAO {
     }
 
     public List<Plan> listarActivos() {
-        final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
-                "FROM plan WHERE estado = 1 ORDER BY id";
+        final String sql = """
+            SELECT p.id, p.nombre, p.valor, p.duracion_total,
+                   p.duracion_unidad_id,
+                   u.nombre AS duracion_unidad_nombre,
+                   p.urlImagen, p.estado
+            FROM plan p
+            JOIN duracion_unidad u ON u.id = p.duracion_unidad_id
+            WHERE p.estado = 1
+            ORDER BY p.id
+        """;
         List<Plan> lista = new ArrayList<>();
         Connection cn = databaseConection.getInstancia().getConnection();
         try (
-             PreparedStatement ps = cn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = cn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                lista.add(mapPlan(rs));
+                Plan plan = mapPlan(rs);
+                try {
+                    plan.setDuracionUnidadNombre(rs.getString("duracion_unidad_nombre"));
+                } catch (SQLException ignore) {}
+                lista.add(plan);
             }
         } catch (Exception e) {
             System.out.println("Error al listar planes activos: " + e.getMessage());
@@ -84,22 +108,35 @@ public class PlanDAO {
     }
 
     public List<Plan> listarInactivos() {
-        final String sql = "SELECT id, nombre, valor, duracion_total, duracion_unidad_id, urlImagen, estado " +
-                "FROM plan WHERE estado = 0 ORDER BY id";
+        final String sql = """
+            SELECT p.id, p.nombre, p.valor, p.duracion_total,
+                   p.duracion_unidad_id,
+                   u.nombre AS duracion_unidad_nombre,
+                   p.urlImagen, p.estado
+            FROM plan p
+            JOIN duracion_unidad u ON u.id = p.duracion_unidad_id
+            WHERE p.estado = 0
+            ORDER BY p.id
+        """;
         List<Plan> lista = new ArrayList<>();
         Connection cn = databaseConection.getInstancia().getConnection();
         try (
-             PreparedStatement ps = cn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = cn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                lista.add(mapPlan(rs));
+                Plan plan = mapPlan(rs);
+                try {
+                    plan.setDuracionUnidadNombre(rs.getString("duracion_unidad_nombre"));
+                } catch (SQLException ignore) {}
+                lista.add(plan);
             }
         } catch (Exception e) {
             System.out.println("Error al listar planes inactivos: " + e.getMessage());
         }
         return lista;
     }
+
 
     //updates
     public int modificarPlan(Plan p) {
@@ -181,7 +218,55 @@ public class PlanDAO {
         }
     }
 
+    //parte de la corrección
+    public List<UnidadDuracion> listarUnidadesDuracion() {
+        String sql = "SELECT id, nombre FROM duracion_unidad ORDER BY id";
+        List<UnidadDuracion> res = new ArrayList<>();
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = cn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                UnidadDuracion u = new UnidadDuracion();
+                u.setId(rs.getByte("id"));
+                u.setNombre(rs.getString("nombre"));
+                res.add(u);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error listando unidades de duración", e);
+        }
+        return res;
+    }
+    public boolean existeUnidadDuracion(byte id) {
+        String sql = "SELECT 1 FROM duracion_unidad WHERE id = ?";
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
+             PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setByte(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error validando unidad de duración", e);
+        }
+    }
 
+    public String obtenerNombreUnidadDuracion(byte id) {
+        String sql = "SELECT nombre FROM duracion_unidad WHERE id = ?";
+        Connection cn = databaseConection.getInstancia().getConnection();
+        try (
+                PreparedStatement ps = cn.prepareStatement(sql)) {
+            ps.setByte(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("nombre");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener nombre de unidad de duración", e);
+        }
+        return "Desconocido"; // Si no existe el ID
+    }
 
     //transformarmos result de consulta a objeto
     private Plan mapPlan(ResultSet rs) throws SQLException {

@@ -9,6 +9,7 @@ public class Plan {
     private byte duracionUnidadId;
     private String urlImagen;
     private boolean estado;
+    private String duracionUnidadNombre;
 
     // Constructor vacío
     public Plan() {}
@@ -65,6 +66,9 @@ public class Plan {
     public void setUrlImagen(String urlImagen) {this.urlImagen = urlImagen;}
 
     public void setEstado(boolean estado) {this.estado = estado;}
+
+    public String getDuracionUnidadNombre() {return duracionUnidadNombre;}
+    public void setDuracionUnidadNombre(String duracionUnidadNombre) {this.duracionUnidadNombre = duracionUnidadNombre;}
 
     public String toString() {
         return "Plan {" +

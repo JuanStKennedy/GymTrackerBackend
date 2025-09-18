@@ -56,7 +56,7 @@ public class ClienteFlujo {
         String direccion = leerOpcional("Dirección (opcional): ");
         String tel = leerOpcional("Tel (opcional): ");
         String pais = leerOpcional("País (opcional): ");
-        Date   fechaIng = leerFechaSql("Fecha de ingreso (YYYY-MM-DD): ");
+        Date   fechaIng = leerFechaSql("Fecha de ingreso (DD-MM-YYY): ");
 
         Cliente c = new Cliente(ci, email, nombre, apellido, ciudad, direccion, tel, pais, fechaIng);
         dao.agregarCliente(c);
@@ -71,6 +71,7 @@ public class ClienteFlujo {
     }
 
     private void modificarCliente() {
+        listarTodos();
         System.out.println("\n     Modificar Cliente");
         String ci = leerNoVacio("CI del cliente a modificar: ");
         Cliente actual = dao.buscarPorCi(ci);
@@ -80,7 +81,7 @@ public class ClienteFlujo {
         }
 
         System.out.println("Valores actuales (Enter para mantener):");
-        System.out.println(detalleClienteBloque(actual));
+        imprimirCliente(actual);
 
         String email = leerOpcional("Email ["+ nvl(actual.getEmail())+ "]: ");
         String nombre = leerOpcional("Nombre ["+ nvl(actual.getNombre())+ "]: ");
@@ -123,7 +124,7 @@ public class ClienteFlujo {
             System.out.println("No encontrado.");
             return;
         }
-        System.out.println("\n" + detalleClienteBloque(c));
+        imprimirCliente(c);
     }
 
     //Impresiones en pantalla
@@ -149,6 +150,7 @@ public class ClienteFlujo {
         }
     }
     //formateamos texto
+    //esto queda descartado
     private String detalleClienteBloque(Cliente c) {
         return "Cliente {\n" +
                 "  ci='" + nvl(c.getCi()) + "',\n" +
@@ -162,4 +164,25 @@ public class ClienteFlujo {
                 "  fechaIngreso=" + nvl(c.getFechaIngreso()) + "\n" +
                 "}";
     }
+
+    //nuevo imprimir cliente como tabla
+    private void imprimirCliente(Cliente c) {
+        String[] headers = {"CI", "Email", "Nombre", "Apellido", "Ciudad", "Dirección", "Tel", "País", "FechaIngreso"};
+        int[] anchos  = {12, 24, 14, 14, 12, 24, 12, 12, 12};
+
+        printHeader(headers, anchos);
+        // Imprimimos una sola fila en este caso....
+        System.out.println(formatRow(new Object[]{
+                nvl(c.getCi()),
+                nvl(c.getEmail()),
+                nvl(c.getNombre()),
+                nvl(c.getApellido()),
+                nvl(c.getCiudad()),
+                nvl(c.getDireccion()),
+                nvl(c.getTel()),
+                nvl(c.getPais()),
+                nvl(c.getFechaIngreso())
+        }, anchos));
+    }
+
 }

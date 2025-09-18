@@ -3,6 +3,8 @@ import dao.PlanDAO;
 import model.Plan;
 
 import flow.UtilidadesFlujo;
+import model.UnidadDuracion;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,7 +64,22 @@ public class PlanFlujo {
         String nombre = UtilidadesFlujo.leerNoVacio("Nombre: ");
         BigDecimal valor = UtilidadesFlujo.leerBigDecimal("Valor (Ej: 1459.99): ");
         short duracionTotal = (short)UtilidadesFlujo.leerEntero("Duracion total (numero): ");
-        byte duracionUnidad = (byte)UtilidadesFlujo.leerEntero("Duracion unidad: ");
+
+        //correcciones
+        List<UnidadDuracion> unidades = planDAO.listarUnidadesDuracion();
+        System.out.println("\nUnidades de duración disponibles:");
+        imprimirUnidadesDuracion(unidades);
+
+        byte duracionUnidad;
+        while (true) {
+            duracionUnidad = (byte) UtilidadesFlujo.leerEntero("Duración unidad ID: ");
+            if (planDAO.existeUnidadDuracion(duracionUnidad)) {
+                break;
+            }
+            System.out.println("ID de unidad inexistente. Elija uno de la lista.");
+        }
+        //fin correcciones
+
         String urlImagen = UtilidadesFlujo.leerOpcional("URL Imagen (Opcional, enter para omitir): ");
         boolean estado = UtilidadesFlujo.leerBooleanSiNo("¿Activo? (s/n): ");
 
@@ -82,6 +99,7 @@ public class PlanFlujo {
 
     private void modificarPlan(){
         System.out.println("       Modificar plan");
+        listarOrdenado(planDAO.listarTodos());
         int id = UtilidadesFlujo.leerEntero("ID del plan a modificar: ");
         Plan actual = planDAO.buscarPorId(id);
         if (actual==null){
@@ -96,7 +114,7 @@ public class PlanFlujo {
         String nombre = UtilidadesFlujo.leerOpcional("Nombre [" + actual.getNombre() + "]: ");
         String valorStr = UtilidadesFlujo.leerOpcional("Valor [" + actual.getValor() + "]: ");
         String durTotStr = UtilidadesFlujo.leerOpcional("Duración total [" + actual.getDuracionTotal() + "]: ");
-        String durUniStr = UtilidadesFlujo.leerOpcional("Unidad duración ID [" + actual.getDuracionUnidadId() + "]: ");
+        byte unidadElegida = leerUnidadDuracionId(actual.getDuracionUnidadId());
         String urlImg = UtilidadesFlujo.leerOpcional("URL Imagen [" + actual.getUrlImagen() + "]: ");
         String estadoStr = UtilidadesFlujo.leerOpcional("¿Activo? (s/n) [" + (actual.isEstado() ? "s" : "n") + "]: ");
 
@@ -104,7 +122,7 @@ public class PlanFlujo {
         if (!nombre.isBlank()) actual.setNombre(nombre);
         if (!valorStr.isBlank()) actual.setValor(parseBigDecimal(valorStr, actual.getValor()));
         if (!durTotStr.isBlank()) actual.setDuracionTotal((short) parseEntero(durTotStr, actual.getDuracionTotal()));
-        if (!durUniStr.isBlank()) actual.setDuracionUnidadId((byte) parseEntero(durUniStr, actual.getDuracionUnidadId()));
+        actual.setDuracionUnidadId(unidadElegida);
         if (!urlImg.isBlank()) actual.setUrlImagen(urlImg);
         if (!estadoStr.isBlank()) actual.setEstado(parseSiNo(estadoStr, actual.isEstado()));
 
@@ -171,36 +189,57 @@ public class PlanFlujo {
     private String nvl(Object o) { return o == null ? "" : String.valueOf(o); }
 
 
-    private void imprimirTabla(List<Plan> lista) { //formateamos el texto en tablas
-        String header = String.format("%-4s | %-24s | %-12s | %-8s | %-6s | %-8s | %-40s",
-                "ID", "Nombre", "Valor", "DurTot", "UniID", "Estado", "URL Imagen");
+    private void imprimirTabla(List<Plan> lista) { // formateamos el texto en tablas
+        String header = String.format(
+                "%-4s | %-24s | %-12s | %-8s | %-12s | %-8s | %-40s",
+                "ID", "Nombre", "Valor", "DurTot", "Unidad", "Estado", "URL Imagen"
+        );
         System.out.println("\n" + header);
         System.out.println("-".repeat(header.length()));
         for (Plan p : lista) {
+            // usa el nombre; si viene null, cae al ID como último recurso
+            String unidadNombre = (p.getDuracionUnidadNombre() != null && !p.getDuracionUnidadNombre().isBlank())
+                    ? p.getDuracionUnidadNombre()
+                    : String.valueOf(p.getDuracionUnidadId()); // fallback
+
             System.out.println(String.format(
-                    "%-4d | %-24s | %-12s | %-8d | %-6d | %-8s | %-40s",
+                    "%-4d | %-24s | %-12s | %-8d | %-12s | %-8s | %-40s",
                     p.getId(),
                     nvl(p.getNombre()),
                     nvl(p.getValor()),
                     p.getDuracionTotal(),
-                    p.getDuracionUnidadId(),
+                    nvl(unidadNombre),
                     (p.isEstado() ? "Activo" : "Inactivo"),
                     nvl(p.getUrlImagen())
             ));
         }
     }
 
+
     private String detallePlanBloque(Plan p) {
-        return "Plan {\n" +
-                "  id=" + p.getId() + ",\n" +
-                "  nombre='" + nvl(p.getNombre()) + "',\n" +
-                "  valor=" + nvl(p.getValor()) + ",\n" +
-                "  duracionTotal=" + p.getDuracionTotal() + ",\n" +
-                "  duracionUnidadId=" + p.getDuracionUnidadId() + ",\n" +
-                "  urlImagen='" + nvl(p.getUrlImagen()) + "',\n" +
-                "  estado=" + (p.isEstado() ? "Activo" : "Inactivo") + "\n" +
-                "}";
+        String unidadNombre = planDAO.obtenerNombreUnidadDuracion(p.getDuracionUnidadId());
+        String header = String.format(
+                "%-4s | %-24s | %-12s | %-8s | %-12s | %-8s | %-40s",
+                "ID", "Nombre", "Valor", "DurTot", "Unidad", "Estado", "URL Imagen");
+                                                 //unidad y no id!
+        String separator = "-".repeat(header.length());
+
+        String row = String.format(
+                "%-4d | %-24s | %-12s | %-8d | %-12s | %-8s | %-40s",
+                p.getId(),
+                nvl(p.getNombre()),
+                nvl(p.getValor()),
+                p.getDuracionTotal(),
+                nvl(unidadNombre),                // ← nombre en vez de ID
+                (p.isEstado() ? "Activo" : "Inactivo"),
+                nvl(p.getUrlImagen())
+        );
+
+        return "\n" + header + "\n" + separator + "\n" + row;
     }
+
+
+
 
     //Utilidades: parsear valores
     private BigDecimal parseBigDecimal(String raw, BigDecimal def) {
@@ -224,5 +263,46 @@ public class PlanFlujo {
         if (s.equals("s")) return true;
         if (s.equals("n")) return false;
         return def;
+    }
+
+    //luego de corrección
+    private void imprimirUnidadesDuracion(List<UnidadDuracion> unidades) {
+        String header = String.format("%-6s | %-24s", "ID", "Nombre");
+        System.out.println(header);
+        System.out.println("-".repeat(header.length()));
+        for (UnidadDuracion u : unidades) {
+            System.out.println(String.format(
+                    "%-6d | %-24s",
+                    u.getId(),
+                    nvl(u.getNombre())
+            ));
+        }
+    }
+
+
+    private byte leerUnidadDuracionId(byte valorActual) {
+        List<UnidadDuracion> unidades = planDAO.listarUnidadesDuracion();
+        System.out.println("\nUnidades de duración disponibles:");
+        imprimirUnidadesDuracion(unidades);
+
+        while (true) {
+            String s = UtilidadesFlujo.leerOpcional(
+                    "Unidad duración ID [" + valorActual + "]: ");
+
+            if (s.isBlank()) return valorActual; // mantiene
+
+            int v = parseEntero(s, -1);
+            if (v < Byte.MIN_VALUE || v > Byte.MAX_VALUE) {
+                System.out.println("Valor fuera de rango byte.");
+                continue;
+            }
+            byte candidato = (byte) v;
+
+            if (!planDAO.existeUnidadDuracion(candidato)) {
+                System.out.println("ID de unidad inexistente. Ingrese uno de la lista.");
+                continue;
+            }
+            return candidato; // válido
+        }
     }
 }

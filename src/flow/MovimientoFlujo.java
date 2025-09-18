@@ -1,7 +1,7 @@
 package flow;
 import dao.MovimientoDAO;
 import model.Movimiento;
-import dto.MovimientoView;
+import dto.*;
 import dao.MovimientoDetalleDAO;
 import static flow.UtilidadesFlujo.*;
 
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class MovimientoFlujo  {
     MovimientoDAO dao = new MovimientoDAO();
@@ -46,34 +47,89 @@ public class MovimientoFlujo  {
 
     //Acciones del flujo
     private void altaMovimiento() {
-        System.out.println("\n      Alta de Movimiento");
+        System.out.println("\n--- Alta de Movimiento ---");
+
         int idStaff = leerEnteroPositivo("ID Staff: ");
-        LocalDateTime fechaHora = leerFechaHora("Fecha y hora (YYYY-MM-DD HH:MM): ");
+
+        // Fecha/hora opcional: Enter -> ahora (null aquí; el DAO usa COALESCE/CURRENT_TIMESTAMP)
+        String fhRaw = leerOpcional("Fecha y hora (YYYY-MM-DD HH:MM) [Enter = ahora]: ");
+        LocalDateTime fechaHora = parseFechaHoraOr(fhRaw, null);
 
         BigDecimal importe;
-        //hasta que lo agregue correctamente
         while (true) {
             importe = leerBigDecimal("Importe (ej: 1499.99): ");
             if (importe != null && importe.compareTo(BigDecimal.ZERO) > 0) break;
             System.out.println("El importe debe ser > 0.");
         }
 
-        byte medioPagoId = leerBytePositivo("MedioPago ID (1 Deb. Maest., 2 Cred. Maest., 3 Efectivo, 4 Mercado Pago, 5 Deb. Visa, 6 Cred. Visa): ");
-        byte tipoClienteId = leerBytePositivo("TipoCliente ID (1 miembro, 3 socio, 4 cliente, 5 staff, 6 empresa): ");
-        byte origenId = leerBytePositivo("Origen ID (1 membresia): ");
+        // 1) Medio de Pago
+        List<IdNombre> medios;
+        try { medios = dao.listarMediosPago(); }
+        catch (Exception e) { System.out.println("Error cargando medios de pago: " + e.getMessage()); return; }
+        imprimirOpcionesIdNombre("Medios de Pago", medios);
+        Integer medioPagoSel = seleccionarIdDeOpciones(medios, "Ingrese ID de Medio de Pago: ", false);
+        if (medioPagoSel == null || medioPagoSel > Byte.MAX_VALUE) { System.out.println("ID fuera de rango byte."); return; }
+        byte medioPagoId = (byte) (int) medioPagoSel;
 
+        // 2) Tipo de Cliente
+        List<IdNombre> tipos;
+        try { tipos = dao.listarTiposCliente(); }
+        catch (Exception e) { System.out.println("Error cargando tipos de cliente: " + e.getMessage()); return; }
+        imprimirOpcionesIdNombre("Tipos de Cliente", tipos);
+        Integer tipoCliSel = seleccionarIdDeOpciones(tipos, "Ingrese ID de Tipo de Cliente: ", false);
+        if (tipoCliSel == null || tipoCliSel > Byte.MAX_VALUE) { System.out.println("ID fuera de rango byte."); return; }
+        byte tipoClienteId = (byte) (int) tipoCliSel;
 
-        //Ojo aca, en un movimiento debe haber o una membresia o un cliente, o ambas, pero al menos uno.
-        String idMembStr = leerOpcional("ID Membresia (opcional): ");
-        Integer idMembresia = parseIntegerOr(idMembStr, null); //esta me la googlee profe
-        String idCliente = leerOpcional("CI Cliente (opcional): ");
-        if ((idMembresia == null) && idCliente.isBlank()) {
-            System.out.println("Debe indicar al menos ID de membresia o CI de cliente.");
+        // 3) Origen Movimiento
+        List<IdNombre> origenes;
+        try { origenes = dao.listarOrigenesMovimiento(); }
+        catch (Exception e) { System.out.println("Error cargando orígenes: " + e.getMessage()); return; }
+        imprimirOpcionesIdNombre("Orígenes de Movimiento", origenes);
+        Integer origenSel = seleccionarIdDeOpciones(origenes, "Ingrese ID de Origen: ", false);
+        if (origenSel == null || origenSel > Byte.MAX_VALUE) { System.out.println("ID fuera de rango byte."); return; }
+        byte origenId = (byte) (int) origenSel;
+
+        // 4) Cliente (opcional)
+        List<ClienteMin> clientes;
+        try { clientes = dao.listarClientesMin(); }
+        catch (Exception e) { System.out.println("Error cargando clientes: " + e.getMessage()); return; }
+        imprimirOpcionesClientes("Clientes (CI - Nombre)", clientes);
+        String idCliente = seleccionarClienteCI(clientes, "Ingrese CI de Cliente (Enter para omitir): ", true); // null si omite
+
+        // 5) Membresías (opcional) — filtradas por cliente si se eligió uno
+        List<MembresiaMin> membresias;
+        try {
+            membresias = dao.listarMembresiasMin();
+            if (idCliente != null) {
+                final String ciSel = idCliente;
+                membresias.removeIf(m -> !java.util.Objects.equals(ciSel, m.getCiCliente())); // null-safe
+            }
+        } catch (Exception e) {
+            System.out.println("Error cargando membresías: " + e.getMessage());
             return;
         }
-        if (idCliente.isBlank()) idCliente = null;
+        imprimirOpcionesMembresias("Membresías (ID - CI - Nombre)", membresias);
+        Integer idMembresia = seleccionarMembresiaId(membresias, "Ingrese ID de Membresía (Enter para omitir): ", true); // null si omite
 
-        //ordenadito ta mas bonito
+        // 6) Regla: al menos uno de cliente/membresía
+        if (idCliente == null && idMembresia == null) {
+            System.out.println("Debe indicar al menos Membresía o CI de Cliente.");
+            return;
+        }
+        // 6) verificamos que la membresía pertenezca a ese cliente
+        if (idCliente != null && idMembresia != null) {
+            try {
+                if (!dao.membresiaPerteneceACliente(idMembresia, idCliente)) {
+                    System.out.println("La membresía #" + idMembresia + " no pertenece al cliente " + idCliente + ".");
+                    return;
+                }
+            } catch (Exception e) {
+                System.out.println("Error validando membresía/cliente: " + e.getMessage());
+                return;
+            }
+        }
+
+        // Construir e insertar
         Movimiento m = new Movimiento(
                 idStaff, fechaHora, importe,
                 medioPagoId, tipoClienteId, origenId,
@@ -82,6 +138,7 @@ public class MovimientoFlujo  {
         dao.insertarMovimiento(m);
         System.out.println("Movimiento insertado.");
     }
+
 
     //listar tod0
     private void listarTodos() {
@@ -104,8 +161,8 @@ public class MovimientoFlujo  {
     }
     private void listarPorRango() {
         System.out.println("\n     Listar por rango ");
-        LocalDateTime desde = leerFechaHora("Desde (YYYY-MM-DD HH:MM): ");
-        LocalDateTime hasta = leerFechaHora("Hasta (YYYY-MM-DD HH:MM): ");
+        LocalDateTime desde = leerFechaDia("Desde (DD-MM-YYYY): ");      // 00:00 del día
+        LocalDateTime hasta = leerFechaDiaFin("Hasta (DD-MM-YYYY): ");   // 00:00 del día SIGUIENTE
         List<Movimiento> lista;
         try {
             lista = dao.listarPorRango(desde, hasta);
@@ -127,8 +184,8 @@ public class MovimientoFlujo  {
         List<Movimiento> lista = null;
         try {
             if (usarRango.equals("s")) {
-                LocalDateTime desde = leerFechaHora("Desde (YYYY-MM-DD HH:MM): ");
-                LocalDateTime hasta = leerFechaHora("Hasta (YYYY-MM-DD HH:MM): ");
+                LocalDateTime desde = leerFechaDia("Desde (DD-MM-YYYY): ");      // 00:00 del día
+                LocalDateTime hasta = leerFechaDiaFin("Hasta (DD-MM-YYYY): ");   // 00:00 del día SIGUIENTE
                 try {
                     lista = dao.listarPorStaff(idStaff, desde, hasta); //polimorfismo aqui
                 } catch (Exception e) {
@@ -150,8 +207,8 @@ public class MovimientoFlujo  {
 
     private void sumarImportesPeriodo() {
         System.out.println("\n     Sumar importes de plazo");
-        LocalDateTime desde = leerFechaHora("Desde (YYYY-MM-DD HH:MM): ");
-        LocalDateTime hasta = leerFechaHora("Hasta (YYYY-MM-DD HH:MM): ");
+        LocalDateTime desde = leerFechaDia("Desde (DD-MM-YYYY): ");      // 00:00 del día
+        LocalDateTime hasta = leerFechaDiaFin("Hasta (DD-MM-YYYY): ");   // 00:00 del día SIGUIENTE
         try {
             BigDecimal total = dao.sumarImportes(desde, hasta);
             System.out.println("Total: " + total);
@@ -161,6 +218,7 @@ public class MovimientoFlujo  {
     }
 
     private void eliminarMovimiento() {
+        listarTodosView();
         System.out.println("\n      Eliminar movimiento ");
         long idMov = leerLongPositivo("ID del movimiento: ");
         if (!confirmar("¿Confirmar eliminacion? (s/n): ")) return;
@@ -187,8 +245,8 @@ public class MovimientoFlujo  {
 
     private void listarPorRangoView() {
         System.out.println("\n       Listar por rango (nombres)");
-        LocalDateTime desde = leerFechaHora("Desde (YYYY-MM-DD HH:MM): ");
-        LocalDateTime hasta = leerFechaHora("Hasta (YYYY-MM-DD HH:MM): ");
+        LocalDateTime desde = leerFechaDia("Desde (DD-MM-YYYY): ");      // 00:00 del día
+        LocalDateTime hasta = leerFechaDiaFin("Hasta (DD-MM-YYYY): ");   // 00:00 del día SIGUIENTE
         List<MovimientoView> lista;
         try {
             lista = dao.listarViewPorRango(desde, hasta);
@@ -206,8 +264,8 @@ public class MovimientoFlujo  {
         List<MovimientoView> lista;
         try {
             if (usarRango.equals("s")) {
-                LocalDateTime desde = leerFechaHora("Desde (YYYY-MM-DD HH:MM): ");
-                LocalDateTime hasta = leerFechaHora("Hasta (YYYY-MM-DD HH:MM): ");
+                LocalDateTime desde = leerFechaDia("Desde (DD-MM-YYYY): ");      // 00:00 del día
+                LocalDateTime hasta = leerFechaDiaFin("Hasta (DD-MM-YYYY): ");   // 00:00 del día SIGUIENTE
                 lista = dao.listarViewPorStaff(idStaff, desde, hasta);
             } else {
                 lista = dao.listarViewPorStaff(idStaff);
