@@ -62,8 +62,10 @@ public class StaffFlujo {
         while (true) {
             System.out.print("Nombre Completo: ");
             nombre = scanner.nextLine();
-            if (!nombre.isEmpty()) break;
-            System.out.println("El nombre no puede estar vacío");
+            if (!nombre.isEmpty() && nombre.matches("[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+")) {
+                break;
+            }
+            System.out.println("El nombre no puede estar vacio y solo puede contener letras y espacios, sin numero o simbolos.");
         }
 
         int rol;
@@ -141,10 +143,12 @@ public class StaffFlujo {
 
         String nombre;
         while (true) {
-            System.out.print("Nuevo Nombre Completo: ");
+            System.out.print("Nombre Completo: ");
             nombre = scanner.nextLine();
-            if (!nombre.isEmpty()) break;
-            System.out.println("El nombre no puede estar vacío");
+            if (!nombre.isEmpty() && nombre.matches("[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+")) {
+                break;
+            }
+            System.out.println("El nombre no puede estar vacio y solo puede contener letras y espacios, sin numero o simbolos.");
         }
 
         int rol;
