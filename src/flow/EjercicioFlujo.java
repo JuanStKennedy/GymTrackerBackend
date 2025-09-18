@@ -38,65 +38,96 @@ public class EjercicioFlujo {
         }
     }
     private void crearEjercicio() {
-        System.out.println("Ingrese el nombre del ejercicio:");
-        String nombre = scanner.nextLine();
-
         EjercicioDAO ejercicioDAO = new EjercicioDAO();
+        String nombre;
+        while (true) {
+            nombre = UtilidadesFlujo.leerNoVacio("Ingrese el nombre del ejercicio: ");
+            if (ejercicioDAO.existePorNombre(nombre)) {
+                System.out.println("Error: ya existe un ejercicio con ese nombre. Intente con otro.");
+            } else {
+                break;
+            }
+        }
         ejercicioDAO.listarGruposMusculares();
+        int grupoMuscularId = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID del grupo muscular: ");
 
-        System.out.print("Ingrese el ID del grupo muscular: ");
-        int grupoMuscularId = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.println("Ingrese la dificultad del ejercicio (PRINCIPIANTE, INTERMEDIO, AVANZADO):");
-        String dificultadStr = scanner.nextLine();
-        Dificultad dificultad = Dificultad.valueOf(dificultadStr.toUpperCase());
-
-        Ejercicio nuevoEjercicio = new Ejercicio(nombre, grupoMuscularId, dificultad);
+        Dificultad dificultad = null;
+        while (dificultad == null) {
+            String dificultadStr = UtilidadesFlujo.leerNoVacio("Ingrese la dificultad (PRINCIPIANTE, INTERMEDIO, AVANZADO): ");
+            try {
+                dificultad = Dificultad.valueOf(dificultadStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Debe ser PRINCIPIANTE, INTERMEDIO o AVANZADO.");
+            }
+        }
+        String url = UtilidadesFlujo.leerNoVacio("Ingrese foto o video del ejercicio (url): ");
+        Ejercicio nuevoEjercicio = new Ejercicio(nombre, grupoMuscularId, dificultad, url);
         ejercicioDAO.agregarEjercicio(nuevoEjercicio);
-
         System.out.println("Ejercicio creado correctamente.");
     }
 
+
+
     private void eliminarEjercicio() {
-        listarEjercicios();
-        System.out.println("Ingrese el ID del ejercicio:");
-        int id = scanner.nextInt();
-
-        Ejercicio ejercicioEliminar = new Ejercicio(id);
         EjercicioDAO ejercicioDAO = new EjercicioDAO();
-        ejercicioDAO.eliminarEjercicio(ejercicioEliminar);
+        Ejercicio ejercicioEliminar = null;
+        while (ejercicioEliminar == null) {
+            listarEjercicios();
+            int id = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID del ejercicio a eliminar: ");
+            ejercicioEliminar = ejercicioDAO.buscarPorId(id);
 
-        System.out.println("Ejercicio eliminado correctamente.");
-
+            if (ejercicioEliminar == null) {
+                System.out.println("Error: ese id no existe en el sistema. Intente nuevamente.");
+            }
+        }
+        String confirmacion = UtilidadesFlujo.leerNoVacio("¿Está seguro que desea eliminar el ejercicio con ID " + ejercicioEliminar.getId() + "? (S/N): ");
+        if (confirmacion.equalsIgnoreCase("S")) {
+            ejercicioDAO.eliminarEjercicio(ejercicioEliminar);
+            System.out.println("Ejercicio eliminado correctamente.");
+        } else {
+            System.out.println("Operación cancelada.");
+        }
     }
+
 
     private void editarEjercicio() {
-        listarEjercicios();
-        System.out.println("Ingrese el id del ejercicio:");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.println("Ingrese el nuevo nombre del ejercicio:");
-        String nombre = scanner.nextLine();
-
         EjercicioDAO ejercicioDAO = new EjercicioDAO();
+        Ejercicio ejercicioEditar = null;
+        while (ejercicioEditar == null) {
+            listarEjercicios();
+            int id = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID del ejercicio: ");
+            ejercicioEditar = ejercicioDAO.buscarPorId(id);
+            if (ejercicioEditar == null) {
+                System.out.println("Error: ese id no existe en el sistema. Intente nuevamente.");
+            }
+        }
+        String nombre;
+        while (true) {
+            nombre = UtilidadesFlujo.leerNoVacio("Ingrese el nuevo nombre del ejercicio: ");
+            if (!nombre.equalsIgnoreCase(ejercicioEditar.getNombre())
+                    && ejercicioDAO.existePorNombre(nombre)) {
+                System.out.println("Error: ya existe un ejercicio con ese nombre. Intente con otro.");
+            } else {
+                break;
+            }
+        }
         ejercicioDAO.listarGruposMusculares();
-
-        System.out.print("Ingrese el ID del grupo muscular: ");
-        int grupoMuscularId = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.println("Ingrese la dificultad del ejercicio (PRINCIPIANTE, INTERMEDIO, AVANZADO):");
-        String dificultadStr = scanner.nextLine();
-        Dificultad dificultad = Dificultad.valueOf(dificultadStr.toUpperCase());
-
-        Ejercicio nuevoEjercicio = new Ejercicio(id, nombre, grupoMuscularId, dificultad);
-        EjercicioDAO ejercicioDAO2 = new EjercicioDAO();
-        ejercicioDAO2.modificarEjercicio(nuevoEjercicio);
-        System.out.println("Ejercicio editado correctamente.");
-
+        int grupoMuscularId = UtilidadesFlujo.leerEnteroPositivo("Ingrese el ID del grupo muscular: ");
+        Dificultad dificultad = null;
+        while (dificultad == null) {
+            String dificultadStr = UtilidadesFlujo.leerNoVacio("Ingrese la dificultad (PRINCIPIANTE, INTERMEDIO, AVANZADO): ");
+            try {
+                dificultad = Dificultad.valueOf(dificultadStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: Debe ser PRINCIPIANTE, INTERMEDIO o AVANZADO.");
+            }
+        }
+        String url = UtilidadesFlujo.leerNoVacio("Ingrese foto o video del ejercicio (url): ");
+        Ejercicio nuevoEjercicio = new Ejercicio(ejercicioEditar.getId(), nombre, grupoMuscularId, dificultad, url);
+        ejercicioDAO.modificarEjercicio(nuevoEjercicio);
+        System.out.println(" Ejercicio editado correctamente.");
     }
+
 
     private void listarEjercicios() {
         System.out.println("Listado de ejercicios:");
@@ -107,22 +138,22 @@ public class EjercicioFlujo {
         }
     }
 
-    private void listarEjerciciosPorGrupoMuscular(){
+    private void listarEjerciciosPorGrupoMuscular() {
         EjercicioDAO ejercicioDAO1 = new EjercicioDAO();
         ejercicioDAO1.listarGruposMusculares();
-        System.out.println("Ingrese el nombre del grupo muscular:");
-        String nombre = scanner.nextLine();
-
+        String nombre = UtilidadesFlujo.leerNoVacio("Ingrese el nombre del grupo muscular: ");
         EjercicioDAO ejercicioDAO2 = new EjercicioDAO();
         List<Ejercicio> ejercicios = ejercicioDAO2.listarEjerciciosPorGrupoMuscular(nombre);
-        if(ejercicios.isEmpty()){
-            System.out.println("No existe ejercicio con ese grupo muscular: "+nombre);
-        }else{
+
+        if (ejercicios.isEmpty()) {
+            System.out.println("No hay cargados ejercicios con ese grupo muscular: " + nombre);
+        } else {
             System.out.println("Listado de ejercicios:");
             for (Ejercicio ejercicio : ejercicios) {
-                System.out.println(ejercicio.toString());
+                System.out.println(ejercicio);
             }
         }
     }
+
 
 }

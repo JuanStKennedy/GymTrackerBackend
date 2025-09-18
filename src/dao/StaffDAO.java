@@ -94,4 +94,31 @@ public class StaffDAO {
         }
     }
 
+    public boolean existeStaffPorId(int id) {
+        String consulta = "SELECT 1 FROM staff WHERE id = ?";
+        try {
+            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            System.out.println("Error al buscar Staff por ID: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean existeStaffPorUsuarioLogin(String uslogin) {
+        String consulta = "SELECT 1 FROM staff WHERE usuario_login = ?";
+        try {
+            PreparedStatement ps = db.databaseConection.getInstancia().getConnection().prepareStatement(consulta);
+            ps.setString(1,uslogin);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            System.out.println("Error al buscar Staff por Usuario Login: " + e.getMessage());
+        }
+        return false;
+    }
+
+
 }
