@@ -5,6 +5,7 @@ import model.Membresia;
 import model.Movimiento;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,25 +76,23 @@ public class MembresiaDAO {
     }
 
     public void listarMembresia(){
-        String sql = "SELECT * FROM membresia";
+        SimpleDateFormat formateador = new SimpleDateFormat("dd/MM/yyyy");
+        String sql = "SELECT cliente.ci f, CONCAT(CONCAT(cliente.nombre, ' '), cliente.apellido) a, plan.nombre b, membresia.fecha_inicio c, membresia.fecha_fin d, membresia.estado_id e FROM membresia, cliente, plan WHERE membresia.id_cliente = cliente.ci AND membresia.id_plan = plan.id";
         try{
             Connection conexion = databaseConection.getInstancia().getConnection();
             PreparedStatement sentencia = conexion.prepareStatement(sql);
-            List<Membresia> listaMembresia = new ArrayList<>();
             ResultSet resultado = sentencia.executeQuery();
-            while (resultado.next()) {
-                listaMembresia.add(mapMembresia(resultado));
-            }
-            String[] headers = {"Cédula", "Nº Plan", "Fecha Inicio", "Fecha Fin", "Estado"};
-            int[] anchos = {9, 9, 13, 11, 10};
+            String[] headers = {"CI", "Nombre completo", "Plan", "Fecha Inicio", "Fecha Fin", "Estado"};
+            int[] anchos = {9, 20, 9, 13, 11, 10};
             printHeader(headers, anchos);
-            for (Membresia m : listaMembresia) {
+            while (resultado.next()) {
                 System.out.println(formatRow(new Object[]{
-                        nvl(m.getIdCliente()),
-                        nvl(m.getIdPlan()),
-                        nvl(m.getFechaInicio()),
-                        nvl(m.getFechaFin()),
-                        nvl((m.getEstadoId() == 1 ? "Activa" : "Inactiva"))
+                        nvl(resultado.getString("f")),
+                        nvl(resultado.getString("a")),
+                        nvl(resultado.getString("b")),
+                        nvl(formateador.format(resultado.getDate("c"))),
+                        nvl(formateador.format(resultado.getDate("d"))),
+                        nvl((resultado.getInt("e") == 1 ? "Activa" : "Inactiva"))
                 }, anchos));
             }
         }catch(Exception e){
